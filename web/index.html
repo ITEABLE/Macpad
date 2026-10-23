@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MacPad">
+<meta name="theme-color" content="#0b0d10">
+<link rel="manifest" href="/manifest.webmanifest">
+<title>MacPad</title>
+<meta name="macpad-token" content="__MACPAD_TOKEN__">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="bar">
+  <div id="dot"></div>
+  <span id="status">connecting…</span>
+  <div class="spacer"></div>
+  <div class="chip" id="openApps">⌘⇥ apps</div>
+  <div class="chip" id="openKb">⌨</div>
+  <div class="chip" id="openSettings">⚙</div>
+</div>
+
+<div id="pad">
+  <div id="hint">
+    <b>1 finger</b> move · <b>tap</b> click · <b>tap+hold</b> drag<br>
+    <b>2 fingers</b> scroll · <b>2-tap</b> right-click<br>
+    <b>3 up</b> Mission Control · <b>3 ←→</b> spaces<br>
+    <b>3 down</b> app windows · <b>3-tap</b> middle-click<br>
+    <b>4 up/down</b> show desktop
+  </div>
+  <div id="flash"></div>
+</div>
+
+<div id="controls">
+  <div class="row">
+    <button data-med="prev">⏮</button>
+    <button data-med="play">⏯</button>
+    <button data-med="next">⏭</button>
+    <button data-med="voldown">🔉</button>
+    <button data-med="volup">🔊</button>
+    <button data-med="mute">🔇</button>
+  </div>
+  <div class="row">
+    <button class="lbl" data-k="left">◀<span class="sub">back</span></button>
+    <button class="lbl" data-k="space">⏯<span class="sub">space</span></button>
+    <button class="lbl" data-k="right">▶<span class="sub">fwd</span></button>
+    <button class="lbl" data-k="f">⛶<span class="sub">full</span></button>
+    <button class="lbl" data-k="esc">esc<span class="sub">exit</span></button>
+  </div>
+  <div class="row">
+    <button class="wide" data-click="0">Left click</button>
+    <button data-click="1">Right click</button>
+  </div>
+</div>
+
+<!-- ---------------- keyboard sheet ---------------- -->
+<div class="sheet" id="kb">
+  <div class="toprow">
+    <input id="native" type="text" placeholder="tap to use the iPhone keyboard"
+           autocapitalize="sentences" autocorrect="on" spellcheck="true" enterkeyhint="send">
+    <button id="kbDone">Done</button>
+  </div>
+  <div class="krow sys">
+    <button data-sys="mission">Mission<br>Control</button>
+    <button data-sys="appexpose">App<br>windows</button>
+    <button data-sys="showdesktop">Show<br>desktop</button>
+    <button data-sys="spotlight">Spot&shy;light</button>
+    <button data-sys="switchapp">⌘⇥</button>
+  </div>
+  <div class="krow">
+    <button class="mod" data-mod="cmd">⌘</button>
+    <button class="mod" data-mod="ctrl">⌃</button>
+    <button class="mod" data-mod="opt">⌥</button>
+    <button class="mod" data-mod="shift">⇧</button>
+    <button class="util" data-k="esc">esc</button>
+    <button class="util" data-k="tab">⇥</button>
+  </div>
+  <div id="keys"></div>
+  <div class="krow utilrow">
+    <button class="util" id="layerBtn">123</button>
+    <button class="space" data-k="space">space</button>
+    <button class="util" data-k="delete">⌫</button>
+    <button class="util" data-k="return">return</button>
+  </div>
+  <div class="krow">
+    <button data-k="left">←</button>
+    <button data-k="up">↑</button>
+    <button data-k="down">↓</button>
+    <button data-k="right">→</button>
+  </div>
+</div>
+
+<!-- ---------------- app switcher sheet ---------------- -->
+<div class="sheet" id="apps">
+  <div class="head">
+    <b>SWITCH APP</b>
+    <button id="appsRefresh">↻</button>
+    <button id="appsDone">Done</button>
+  </div>
+  <div class="krow">
+    <button id="swStart">Hold ⌘⇥</button>
+    <button id="swPrev" disabled>◀</button>
+    <button id="swNext" disabled>▶</button>
+    <button id="swPick" disabled>✓ pick</button>
+  </div>
+  <div id="appGrid"></div>
+  <div id="appEmpty">loading apps…</div>
+</div>
+
+<!-- ---------------- settings sheet ---------------- -->
+<div class="sheet" id="settings">
+  <h3>SETTINGS</h3>
+  <div class="field">
+    <label>Pointer speed <span id="sensVal">1.8×</span></label>
+    <input type="range" id="sens" min="0.4" max="5" step="0.1" value="1.8">
+  </div>
+  <div class="field">
+    <label>Scroll speed <span id="scrollVal">1.0×</span></label>
+    <input type="range" id="scrollSpeed" min="0.2" max="4" step="0.1" value="1">
+  </div>
+  <div class="field">
+    <label>Gesture sensitivity <span id="gestVal">55px</span></label>
+    <input type="range" id="gestThresh" min="25" max="120" step="5" value="55">
+  </div>
+  <div class="toggle"><span>Natural scrolling</span><input type="checkbox" id="natural" checked></div>
+  <div class="toggle"><span>Pointer acceleration</span><input type="checkbox" id="accel" checked></div>
+  <div class="toggle"><span>Multi-finger gestures</span><input type="checkbox" id="gestures" checked></div>
+  <div class="toggle"><span>2-finger tap = right click</span><input type="checkbox" id="rightTap" checked></div>
+  <div class="toggle"><span>Show tap diagnostics</span><input type="checkbox" id="diag"></div>
+  <p class="note">
+    Gestures fire the matching macOS shortcut (3-finger up runs Mission Control via ⌃↑),
+    so they work exactly as they do on your built-in trackpad.
+  </p>
+  <div class="row"><button id="settingsDone">Done</button></div>
+</div>
+
+<script src="app.js" defer></script>
+</body>
+</html>

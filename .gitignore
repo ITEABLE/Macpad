@@ -1,0 +1,11 @@
+# Build output
+MacPad.app/
+build/
+*.o
+*.dSYM/
+
+# macOS
+.DS_Store
+
+# Working notes, not part of the product
+STATUS.md
