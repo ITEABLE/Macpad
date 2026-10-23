@@ -250,7 +250,8 @@ function firedChord(out, key, mod) {
   return !!down && !!up && out.indexOf(down) < out.indexOf(k) && out.indexOf(k) < out.indexOf(up);
 }
 out = swipe(3, 0, -90);
-check("3 up = Mission Control (ctrl+up)", firedChord(out, "up", "ctrl"), out);
+check("3 up asks the server to open Mission Control",
+  out.some((m) => m.t === "sys" && m.a === "mission"), out);
 out = swipe(3, 0, 90);
 check("3 down = App windows (ctrl+down)", firedChord(out, "down", "ctrl"), out);
 out = swipe(3, -90, 0);
@@ -262,14 +263,40 @@ check("4 up = Show Desktop (f11)", firedChord(out, "f11", null), out);
 
 out = swipe(3, 0, -20);
 check("a small 3-finger wobble fires nothing",
-  !out.some((m) => m.t === "k" || m.t === "mod"), out);
+  !out.some((m) => m.t === "k" || m.t === "mod" || m.t === "sys"), out);
 
 out = swipe(3, 0, -90);
-check("a gesture fires exactly once", out.filter((m) => m.t === "k").length === 1, out);
+check("a gesture fires exactly once",
+  out.filter((m) => m.t === "k" || m.t === "sys").length === 1, out);
 check("the modifier is always released again",
   out.filter((m) => m.t === "mod" && m.down).length ===
   out.filter((m) => m.t === "mod" && !m.down).length, out);
 check("a gesture sends no cursor movement", !out.some((m) => m.t === "m" || m.t === "s"), out);
+
+console.log("\n=== three-finger feedback ===");
+const flashEl = getEl("flash");
+reset();
+pad.dispatch("touchstart", ev("touchstart", [touch(1, 100, 300)]));
+advance(6);
+pad.dispatch("touchstart", ev("touchstart", [touch(2, 150, 300)]));
+advance(6);
+check("two fingers down shows no gesture hint", flashEl.dataset.show !== "hint");
+pad.dispatch("touchstart", ev("touchstart", [touch(3, 200, 300)]));
+check("three fingers down confirms the fingers registered",
+  flashEl.dataset.show === "hint" && /3 fingers/.test(flashEl.textContent),
+  { show: flashEl.dataset.show, text: flashEl.textContent });
+pad.dispatch("touchend", ev("touchend",
+  [touch(1, 100, 300), touch(2, 150, 300), touch(3, 200, 300)], []));
+flushRaf();
+check("lifting clears the hint", flashEl.dataset.show !== "hint", flashEl.dataset.show);
+
+// The threshold dropped to 42px, so a swipe that used to be too short now fires.
+out = swipe(3, 0, -50);
+check("a 50px three-finger swipe up now fires Mission Control",
+  out.some((m) => m.t === "sys" && m.a === "mission"), out);
+out = swipe(3, 0, -20);
+check("a 20px wobble still fires nothing",
+  !out.some((m) => m.t === "k" || m.t === "mod" || m.t === "sys"), out);
 
 console.log("\n=== tap-then-hold drag ===");
 reset();
@@ -441,16 +468,20 @@ flushRaf();
 check("a finger landing late does not make it a right click",
   !sent.some((m) => m.t === "c" && m.b === 1), sent);
 
-console.log("\n=== system shortcuts are real chords ===");
+console.log("\n=== system actions use the right mechanism ===");
 reset();
-runSwipe3Up();
-const seq = sent.filter((m) => m.t === "mod" || m.t === "k");
-check("3-up presses ctrl, sends up, releases ctrl",
+const down3 = swipe(3, 0, 90);
+const seq = down3.filter((m) => m.t === "mod" || m.t === "k");
+check("a shortcut-backed gesture presses ctrl, sends the key, releases ctrl",
   seq.length === 3 &&
   seq[0].t === "mod" && seq[0].m === "ctrl" && seq[0].down === true &&
-  seq[1].t === "k" && seq[1].key === "up" &&
-  seq[2].t === "mod" && seq[2].m === "ctrl" && seq[2].down === false, sent);
-check("no bare sys message is sent any more", !sent.some((m) => m.t === "sys"), sent);
+  seq[1].t === "k" && seq[1].key === "down" &&
+  seq[2].t === "mod" && seq[2].m === "ctrl" && seq[2].down === false, down3);
+
+reset();
+const up3 = runSwipe3Up();
+check("Mission Control is delegated to the server, not sent as a keystroke",
+  up3.length === 1 && up3[0].t === "sys" && up3[0].a === "mission", up3);
 
 console.log("\n=== iPhone keyboard overlay mode ===");
 getEl("openKb").dispatch("click", {});          // open the panel

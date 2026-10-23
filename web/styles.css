@@ -186,6 +186,8 @@ input { caret-color: var(--lamp); accent-color: var(--ink-dim); }
   pointer-events: none;
 }
 .flash[data-show="yes"] { opacity: 1; }
+/* A hint is quieter than a result: it reports fingers, not an action. */
+.flash[data-show="hint"] { opacity: 1; background: none; color: var(--ink-faint); }
 
 /* ---- control banks ---- */
 

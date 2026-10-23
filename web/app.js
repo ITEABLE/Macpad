@@ -7,7 +7,7 @@ const indicator = $("indicator"), host = $("host");
 host.textContent = location.host.replace(/:\d+$/, "");
 
 // Settings
-const defaults = { sens: 1.8, scrollSpeed: 1, gestThresh: 55, natural: true,
+const defaults = { sens: 1.8, scrollSpeed: 1, gestThresh: 42, natural: true,
                    accel: true, gestures: true, rightTap: true, diag: false };
 let cfg = Object.assign({}, defaults);
 try { Object.assign(cfg, JSON.parse(localStorage.getItem("macpad") || "{}")); } catch (e) {}
@@ -159,8 +159,9 @@ const GESTURES = {
 
 // System hotkeys (Mission Control, Spaces) want a genuine modifier keypress,
 // not just a modifier flag set on the key event. Press, send, release.
+// `mission` is deliberately absent: its shortcut is not reliably enabled, so
+// it falls through to the server, which opens Mission Control directly.
 const CHORDS = {
-  mission:     { key: "up",    mod: ["ctrl"] },
   appexpose:   { key: "down",  mod: ["ctrl"] },
   spaceleft:   { key: "left",  mod: ["ctrl"] },
   spaceright:  { key: "right", mod: ["ctrl"] },
@@ -178,6 +179,17 @@ function runAction(name) {
 }
 
 let flashTimer = null;
+
+// A hint stays up while the fingers are down; a flash is a result and fades.
+function showHint(text) {
+  clearTimeout(flashTimer);
+  flash.textContent = text;
+  flash.dataset.show = "hint";
+}
+function clearHint() {
+  if (flash.dataset.show === "hint") flash.dataset.show = "no";
+}
+
 function showFlash(text) {
   flash.textContent = text;
   flash.dataset.show = "yes";
@@ -270,6 +282,9 @@ pad.addEventListener("touchstart", (e) => {
     mx = my = sx = sy = 0;
     gestureAnchor = centroid();
     scrollAnchor = null;
+    // Confirm the fingers registered. Without this a gesture that does not
+    // fire is indistinguishable from one the phone never saw.
+    showHint(`${active.size} fingers — swipe`);
   } else if (active.size === 2) {
     scrollAnchor = centroid();
   }
@@ -368,6 +383,7 @@ function endTouches(e) {
   if (active.size === 1) { scrollAnchor = null; gestureAnchor = null; return; }
 
   pad.dataset.touching = "no";
+  clearHint();
   flushQueue();
   cancelPendingDrag();
 

@@ -56,9 +56,27 @@ enum SystemAction {
         for m in mods.reversed() { c.modifier(m, down: false) }
     }
 
+    /// Open Mission Control by launching it.
+    ///
+    /// Its keyboard shortcut is not reliably enabled: on the machine this was
+    /// built against, Ctrl+Up fires nothing while launching the app opens it
+    /// every time. The shortcut stays as the fallback for Macs where it works.
+    private static func launch(_ bundleID: String, fallback: @escaping () -> Void) {
+        DispatchQueue.main.async {
+            guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID)
+            else { fallback(); return }
+            let config = NSWorkspace.OpenConfiguration()
+            config.activates = true
+            NSWorkspace.shared.openApplication(at: url, configuration: config) { _, error in
+                if error != nil { fallback() }
+            }
+        }
+    }
+
     static func perform(_ name: String, _ c: MacController) {
         switch name {
-        case "mission":     chord(c, 126, ["ctrl"])            // Ctrl+Up
+        case "mission":
+            launch("com.apple.exposelauncher") { chord(c, 126, ["ctrl"]) }
         case "appexpose":   chord(c, 125, ["ctrl"])            // Ctrl+Down
         case "spaceleft":   chord(c, 123, ["ctrl"])            // Ctrl+Left
         case "spaceright":  chord(c, 124, ["ctrl"])            // Ctrl+Right
