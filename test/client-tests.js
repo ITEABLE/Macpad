@@ -164,6 +164,38 @@ let moves = out.filter((m) => m.t === "m");
 check("one finger produces a move", moves.length === 1 && moves[0].x > 0 && moves[0].y > 0, out);
 check("a long slide is not treated as a click", !out.some((m) => m.t === "c"), out);
 
+console.log("\n=== acceleration is sampling-rate independent ===");
+// The same physical swipe, sampled at two different rates, must move the
+// pointer the same distance. Per-event acceleration failed this, which is what
+// made movement feel uneven.
+function swipeAtRate(steps, pxPerStep, msPerStep) {
+  reset();
+  let y = 400;
+  pad.dispatch("touchstart", ev("touchstart", [touch(1, 100, y)]));
+  for (let i = 0; i < steps; i++) {
+    advance(msPerStep);
+    y -= pxPerStep;
+    pad.dispatch("touchmove", ev("touchmove", [touch(1, 100, y)]));
+    flushRaf();
+  }
+  pad.dispatch("touchend", ev("touchend", [touch(1, 100, y)], []));
+  flushRaf();
+  return sent.filter((m) => m.t === "m").reduce((a, m) => a + Math.abs(m.y), 0);
+}
+const fast120 = swipeAtRate(10, 10, 8);    // 100px over 80ms at 120Hz
+const fast60  = swipeAtRate(5, 20, 16);    // 100px over 80ms at 60Hz
+const spread  = Math.abs(fast120 - fast60) / Math.max(fast120, fast60);
+check("120Hz and 60Hz sampling move the pointer the same distance",
+  spread < 0.12, { fast120: Math.round(fast120), fast60: Math.round(fast60),
+                   spreadPct: Math.round(spread * 100) });
+
+// A slow drag must stay precise; a fast flick must cover more ground.
+const slow = swipeAtRate(10, 2, 16);       // 20px over 160ms
+const quick = swipeAtRate(10, 20, 8);      // 200px over 80ms
+check("a fast flick still accelerates more than a slow drag",
+  quick / 200 > slow / 20 * 1.5, { slowGain: +(slow / 20).toFixed(2),
+                                   quickGain: +(quick / 200).toFixed(2) });
+
 console.log("\n=== taps ===");
 out = padSeq([
   ["touchstart", [touch(1, 100, 100)], null, 0],

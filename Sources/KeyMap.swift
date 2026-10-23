@@ -44,17 +44,29 @@ enum KeyCode {
 /// gesture fires the shortcut that gesture would trigger. Same visible result,
 /// and it honours the user's own remappings in System Settings.
 enum SystemAction {
+    /// Press the modifier for real, send the key, release it.
+    ///
+    /// Setting a modifier flag on the key event is enough for ordinary app
+    /// shortcuts but is silently ignored by the system hotkeys these actions
+    /// target: measured against Mission Control, Spaces and the app switcher,
+    /// the flags-only form fired nothing while this form fires every time.
+    private static func chord(_ c: MacController, _ code: CGKeyCode, _ mods: [String] = []) {
+        for m in mods { c.modifier(m, down: true) }
+        c.key(code)
+        for m in mods.reversed() { c.modifier(m, down: false) }
+    }
+
     static func perform(_ name: String, _ c: MacController) {
         switch name {
-        case "mission":     c.key(126, flags: .maskControl)   // Ctrl+Up
-        case "appexpose":   c.key(125, flags: .maskControl)   // Ctrl+Down
-        case "spaceleft":   c.key(123, flags: .maskControl)   // Ctrl+Left
-        case "spaceright":  c.key(124, flags: .maskControl)   // Ctrl+Right
-        case "showdesktop": c.key(103)                        // F11
-        case "spotlight":   c.key(49, flags: .maskCommand)    // Cmd+Space
-        case "switchapp":   c.key(48, flags: .maskCommand)    // Cmd+Tab
-        case "closewin":    c.key(13, flags: .maskCommand)    // Cmd+W
-        case "fullscreen":  c.key(3, flags: [.maskCommand, .maskControl]) // Ctrl+Cmd+F
+        case "mission":     chord(c, 126, ["ctrl"])            // Ctrl+Up
+        case "appexpose":   chord(c, 125, ["ctrl"])            // Ctrl+Down
+        case "spaceleft":   chord(c, 123, ["ctrl"])            // Ctrl+Left
+        case "spaceright":  chord(c, 124, ["ctrl"])            // Ctrl+Right
+        case "showdesktop": chord(c, 103)                      // F11
+        case "spotlight":   chord(c, 49, ["cmd"])              // Cmd+Space
+        case "switchapp":   chord(c, 48, ["cmd"])              // Cmd+Tab
+        case "closewin":    chord(c, 13, ["cmd"])              // Cmd+W
+        case "fullscreen":  chord(c, 3, ["cmd", "ctrl"])       // Ctrl+Cmd+F
         default: break
         }
     }

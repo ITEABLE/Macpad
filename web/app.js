@@ -189,12 +189,16 @@ function showFlash(text) {
 const TAP_MS = 280, TAP_SLOP = 12, DRAG_WINDOW = 320, DRAG_ARM_MS = 60;
 const TAP_TOGETHER = 140;   // fingers landing within this count as one tap
 const MAX_STEP = 180;       // a bigger single-event jump is a glitch, not a swipe
+const ACCEL_K = 1.2;        // gain per px/ms of finger speed
+const ACCEL_CAP = 2.6;      // ceiling, so a flick cannot teleport the pointer
+const DT_MIN = 4, DT_MAX = 50;   // plausible bounds for one frame of touch
 
 const active = new Map();
 const lastPos = new Map();          // per-finger previous position
 let landings = [];                  // when each finger of this gesture landed
 let lastCount = 0;                  // finger count at the previous event
 let peakFingers = 0, startTime = 0, travel = 0, lastTapEnd = 0, tapChain = 0;
+let lastMoveAt = 0;         // for speed in px/ms rather than px/event
 let dragging = false, scrollAnchor = null;
 let gestureAnchor = null, gestureFired = false;
 let dragPending = false, dragTimer = null;
@@ -234,6 +238,7 @@ pad.addEventListener("touchstart", (e) => {
     peakFingers = 0;
     gestureFired = false;
     landings = [];
+    lastMoveAt = performance.now();
     if (performance.now() - lastTapEnd < DRAG_WINDOW && e.touches.length === 1) {
       // Defer the button press: a second finger arriving now means right-click
       // or scroll, not drag.
@@ -331,15 +336,21 @@ pad.addEventListener("touchmove", (e) => {
 
   // --- 1 finger: move the pointer ---
   if (n !== 1 || !settled) return;
+
+  // Acceleration is measured in px per millisecond, not px per event. Per-event
+  // speed depends on how often the device samples touches, so the same physical
+  // flick accelerated differently at 60Hz and 120Hz and the pointer felt uneven.
+  const now = performance.now();
+  const dt = Math.min(Math.max(now - lastMoveAt, DT_MIN), DT_MAX);
+  lastMoveAt = now;
+
   for (const d of deltas) {
     // No real swipe covers this much ground in one event.
     if (Math.abs(d.dx) > MAX_STEP || Math.abs(d.dy) > MAX_STEP) continue;
-    travel += Math.hypot(d.dx, d.dy);
+    const dist = Math.hypot(d.dx, d.dy);
+    travel += dist;
     let gain = cfg.sens;
-    if (cfg.accel) {
-      const speed = Math.hypot(d.dx, d.dy);
-      gain *= 1 + Math.min(speed * 0.14, 2.6);
-    }
+    if (cfg.accel) gain *= 1 + Math.min((dist / dt) * ACCEL_K, ACCEL_CAP);
     mx += d.dx * gain;
     my += d.dy * gain;
     schedule();
