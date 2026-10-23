@@ -95,6 +95,26 @@ final class Server {
         return png.base64EncodedString()
     }
 
+    /// Step to the next or previous app, wrapping around.
+    ///
+    /// This is what the sideways three-finger swipe does. The Spaces shortcuts
+    /// it used to send are ignored when synthesised, whereas activating an app
+    /// works every time, and because a full-screen app owns its own Space this
+    /// moves between Spaces as well as between windows. Ordering matches the
+    /// app grid so the two agree.
+    private func cycleApp(_ delta: Int) {
+        DispatchQueue.main.async {
+            let apps = NSWorkspace.shared.runningApplications
+                .filter { $0.activationPolicy == .regular }
+                .sorted { ($0.localizedName ?? "").localizedCaseInsensitiveCompare($1.localizedName ?? "")
+                          == .orderedAscending }
+            guard !apps.isEmpty else { return }
+            let current = apps.firstIndex { $0.isActive } ?? 0
+            let next = ((current + delta) % apps.count + apps.count) % apps.count
+            apps[next].activate(options: [.activateAllWindows])
+        }
+    }
+
     private func activateApp(_ bundleID: String) {
         DispatchQueue.main.async {
             NSRunningApplication.runningApplications(withBundleIdentifier: bundleID)
@@ -138,7 +158,13 @@ final class Server {
             ][k]
             if let m { controller.mediaKey(m) }
         case "sys":
-            if let a = obj["a"] as? String { SystemAction.perform(a, controller) }
+            if let a = obj["a"] as? String {
+                switch a {
+                case "appnext": cycleApp(1)
+                case "appprev": cycleApp(-1)
+                default: SystemAction.perform(a, controller)
+                }
+            }
         case "mod":
             if let m = obj["m"] as? String {
                 controller.modifier(m, down: (obj["down"] as? NSNumber)?.boolValue ?? false)

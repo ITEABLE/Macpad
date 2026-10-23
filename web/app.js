@@ -150,22 +150,27 @@ function flushQueue() {
 const schedule = () => { if (!queued) { queued = true; requestAnimationFrame(flushQueue); } };
 
 // Gesture → action table
+// Four fingers mirror three, the way macOS treats them as interchangeable.
 const GESTURES = {
-  3: { up: ["mission", "Mission Control"], down: ["appexpose", "App windows"],
-       left: ["spaceleft", "◀ Space"],     right: ["spaceright", "Space ▶"] },
-  4: { up: ["showdesktop", "Show Desktop"], down: ["showdesktop", "Show Desktop"],
-       left: ["spaceleft", "◀ Space"],      right: ["spaceright", "Space ▶"] },
+  3: { up: ["mission", "Mission Control"], down: ["appwindows", "App windows"],
+       left: ["appprev", "◀ Previous"],    right: ["appnext", "Next ▶"] },
+  4: { up: ["mission", "Mission Control"], down: ["appwindows", "App windows"],
+       left: ["appprev", "◀ Previous"],    right: ["appnext", "Next ▶"] },
 };
 
 // System hotkeys (Mission Control, Spaces) want a genuine modifier keypress,
 // not just a modifier flag set on the key event. Press, send, release.
 // `mission` is deliberately absent: its shortcut is not reliably enabled, so
 // it falls through to the server, which opens Mission Control directly.
+// `mission`, `appprev` and `appnext` are deliberately absent: the system
+// shortcuts behind them are ignored when synthesised, so they fall through to
+// the server, which opens Mission Control and moves between apps directly.
 const CHORDS = {
-  appexpose:   { key: "down",  mod: ["ctrl"] },
-  spaceleft:   { key: "left",  mod: ["ctrl"] },
-  spaceright:  { key: "right", mod: ["ctrl"] },
-  showdesktop: { key: "f11",   mod: [] },
+  // Cycles windows inside the current app. App Expose (Ctrl+Down) and Show
+  // Desktop (F11) were here, but both are system hotkeys that ignore a
+  // synthesised press, so they never fired. This is an app shortcut, which
+  // does fire, and it answers the same question: show me this app's windows.
+  appwindows:  { key: "`",     mod: ["cmd"] },
   spotlight:   { key: "space", mod: ["cmd"] },
   switchapp:   { key: "tab",   mod: ["cmd"] },
 };

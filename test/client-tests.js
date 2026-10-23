@@ -253,13 +253,15 @@ out = swipe(3, 0, -90);
 check("3 up asks the server to open Mission Control",
   out.some((m) => m.t === "sys" && m.a === "mission"), out);
 out = swipe(3, 0, 90);
-check("3 down = App windows (ctrl+down)", firedChord(out, "down", "ctrl"), out);
+check("3 down cycles this app's windows (cmd+`)", firedChord(out, "`", "cmd"), out);
 out = swipe(3, -90, 0);
-check("3 left = previous space (ctrl+left)", firedChord(out, "left", "ctrl"), out);
+check("3 left asks the server for the previous app",
+  out.some((m) => m.t === "sys" && m.a === "appprev"), out);
 out = swipe(3, 90, 0);
-check("3 right = next space (ctrl+right)", firedChord(out, "right", "ctrl"), out);
+check("3 right asks the server for the next app",
+  out.some((m) => m.t === "sys" && m.a === "appnext"), out);
 out = swipe(4, 0, -90);
-check("4 up = Show Desktop (f11)", firedChord(out, "f11", null), out);
+check("4 up mirrors 3 up", out.some((m) => m.t === "sys" && m.a === "mission"), out);
 
 out = swipe(3, 0, -20);
 check("a small 3-finger wobble fires nothing",
@@ -472,11 +474,11 @@ console.log("\n=== system actions use the right mechanism ===");
 reset();
 const down3 = swipe(3, 0, 90);
 const seq = down3.filter((m) => m.t === "mod" || m.t === "k");
-check("a shortcut-backed gesture presses ctrl, sends the key, releases ctrl",
+check("a shortcut-backed gesture presses the modifier, sends the key, releases it",
   seq.length === 3 &&
-  seq[0].t === "mod" && seq[0].m === "ctrl" && seq[0].down === true &&
-  seq[1].t === "k" && seq[1].key === "down" &&
-  seq[2].t === "mod" && seq[2].m === "ctrl" && seq[2].down === false, down3);
+  seq[0].t === "mod" && seq[0].m === "cmd" && seq[0].down === true &&
+  seq[1].t === "k" && seq[1].key === "`" &&
+  seq[2].t === "mod" && seq[2].m === "cmd" && seq[2].down === false, down3);
 
 reset();
 const up3 = runSwipe3Up();
