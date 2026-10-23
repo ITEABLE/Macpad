@@ -100,10 +100,28 @@ authoritative makes it self-healing.
 brushing the pad shortly after the tapping finger shouldn't turn a left click
 into a right click. Only fingers landing within 140 ms of each other count.
 
+**Text entry is the iPhone's keyboard, never a drawn one.** A web QWERTY gives
+up autocorrect, dictation and swipe to reproduce something iOS already does
+better. The panel supplies only what iOS cannot send to a Mac: latching
+modifiers, esc and tab, the six universal chord shortcuts, and arrows, which
+the iOS keyboard has none of. The field diffs its own contents and sends the
+delta, so an autocorrect replacement arrives as a deletion then an insertion,
+and it rides above the system keyboard using `visualViewport`, which iOS does
+not shrink the layout viewport for.
+
+**The trackpad is never covered.** An open panel is capped at runtime so the
+pad keeps a usable height, and the pad sheds its legend rather than shrink into
+a card. You can click into a field on the Mac and keep typing without closing
+anything.
+
 **The UI is loaded from Application Support, not the app bundle.** The app is
 ad-hoc signed, so rebuilding changes its code signature and macOS revokes the
 Accessibility grant. Reading the UI from outside the bundle means front end
 changes ship with a file copy and no re-signing.
+
+The visual system is recorded in [DESIGN.md](DESIGN.md), with a
+machine-readable sidecar at `.impeccable/design.json`. Product constraints that
+outlive any redesign are in [PRODUCT.md](PRODUCT.md).
 
 ## Build and run
 
@@ -131,8 +149,8 @@ Front end changes only:
 ./test/run.sh
 ```
 
-51 checks covering gesture recognition, tap classification, scroll, drag, the
-on-screen keyboard, modifier latching, and the app switcher. `app.js` runs in a
+51 checks covering gesture recognition, tap classification, scroll, drag,
+keyboard mirroring, modifier latching, and the app switcher. `app.js` runs in a
 stub DOM, so touch sequences are replayed as data and assertions are made
 against the exact protocol messages produced. Timers run on a virtual clock,
 which makes timing-dependent behaviour (drag arming, double-tap) deterministic.

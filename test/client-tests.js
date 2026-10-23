@@ -26,6 +26,10 @@ function advance(dt) {
 function mkEl(id) {
   const el = {
     id, textContent: "", innerHTML: "", value: "", style: {}, disabled: false, src: "",
+    attrs: {},
+    setAttribute(k, v) { this.attrs[k] = String(v); },
+    getAttribute(k) { return this.attrs[k]; },
+    type: "",
     dataset: {}, children: [], listeners: {},
     classList: {
       _s: new Set(),
@@ -69,7 +73,9 @@ const document = {
   createElement: () => mkEl("gen"),
   addEventListener(t, fn, opts) { (this.listeners[t] ||= []).push({ fn, opts }); },
   querySelectorAll(sel) {
-    if (sel === "#kb button.mod") return modButtons;
+    if (sel === "[data-mod]") return modButtons;
+    const m = sel.match(/^\[data-mod="(\w+)"\]$/);
+    if (m) return modButtons.filter((b) => b.dataset.mod === m[1]);
     return [];
   },
   querySelector(sel) {
@@ -419,7 +425,7 @@ getEl("openKb").dispatch("click", {});          // open the panel
 reset();
 native.dispatch("focus", {});
 check("focusing the field collapses our keyboard away",
-  document.body.classList.contains("nativekb"));
+  document.body.dataset.nativeKeyboard === "yes");
 
 reset();
 modButtons[0].dispatch("click", { preventDefault() {} });   // latch ⌘
@@ -439,12 +445,12 @@ check("plain typing still mirrors as text",
 reset();
 getEl("kbDone").dispatch("click", {});
 check("Done dismisses the iPhone keyboard but keeps the panel open",
-  kb.classList.contains("open"));
+  kb.dataset.open === "yes");
 native.dispatch("blur", {});
 check("blurring restores our keyboard",
-  !document.body.classList.contains("nativekb"));
+  document.body.dataset.nativeKeyboard !== "yes");
 getEl("kbDone").dispatch("click", {});
-check("a second Done closes the panel", !kb.classList.contains("open"));
+check("a second Done closes the panel", kb.dataset.open !== "yes");
 
 console.log("\n=== app switcher ===");
 reset();
@@ -502,7 +508,7 @@ wsInstance.onmessage({ data: JSON.stringify({ t: "apps", apps: [
 const grid = getEl("appGrid");
 check("the grid renders one tile per app", grid.children.length === 2, grid.children.length);
 check("the frontmost app is highlighted",
-  grid.children[0].classList.contains("front") && !grid.children[1].classList.contains("front"));
+  grid.children[0].getAttribute("aria-current") === "true" && !grid.children[1].getAttribute("aria-current"));
 reset();
 grid.children[1].dispatch("click", {});
 check("tapping an app activates it",

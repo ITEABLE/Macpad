@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-24T00:00:00Z",
+  "title": "Design System: MacPad",
+  "extensions": {
+    "colorMeta": {
+      "plate": { "role": "neutral", "displayName": "Near-Black Plate", "canonical": "#0B0B0D", "cssVar": "--plate", "daylightTwin": "plate-day", "tonalRamp": ["#0B0B0D", "#15161A", "#23252B", "#3A3D45", "#565A63", "#7C818B", "#B4B8BF", "#E9E6DF"] },
+      "field": { "role": "neutral", "displayName": "Raised Field", "canonical": "#15161A", "cssVar": "--field", "daylightTwin": "field-day", "tonalRamp": ["#0B0B0D", "#15161A", "#23252B", "#3A3D45", "#565A63", "#7C818B", "#B4B8BF", "#E9E6DF"] },
+      "field-down": { "role": "neutral", "displayName": "Finger-Down Wash", "canonical": "#1F212733", "cssVar": "--field-down", "daylightTwin": "field-down-day" },
+      "seam": { "role": "neutral", "displayName": "Hairline Seam", "canonical": "#23252B", "cssVar": "--seam", "daylightTwin": "seam-day", "tonalRamp": ["#0B0B0D", "#15161A", "#23252B", "#3A3D45", "#565A63", "#7C818B", "#B4B8BF", "#E9E6DF"] },
+      "ink": { "role": "neutral", "displayName": "Warm Ink", "canonical": "#E9E6DF", "cssVar": "--ink", "daylightTwin": "ink-day", "tonalRamp": ["#1A1916", "#2E2C28", "#46433D", "#65625C", "#878D99", "#B4B8BF", "#E9E6DF", "#F6F4F1"] },
+      "ink-dim": { "role": "neutral", "displayName": "Dimmed Ink", "canonical": "#878D99", "cssVar": "--ink-dim", "daylightTwin": "ink-dim-day" },
+      "ink-faint": { "role": "neutral", "displayName": "Faint Ink", "canonical": "#7C818B", "cssVar": "--ink-faint", "daylightTwin": "ink-faint-day" },
+      "lamp": { "role": "primary", "displayName": "Lamp Amber", "canonical": "#FFB546", "cssVar": "--lamp", "daylightTwin": "lamp-day", "tonalRamp": ["#2A1A00", "#4A2F00", "#6B4500", "#8A4E00", "#C07C10", "#FFB546", "#FFD093", "#FFEBD1"] },
+      "lamp-glow": { "role": "primary", "displayName": "Lamp Glow", "canonical": "rgba(255, 181, 70, 0.30)", "cssVar": "--lamp-glow", "daylightTwin": "lamp-glow-day" },
+      "lamp-wash": { "role": "primary", "displayName": "Lamp Wash", "canonical": "rgba(255, 181, 70, 0.07)", "cssVar": "--lamp-wash", "daylightTwin": "lamp-wash-day" },
+      "fault": { "role": "secondary", "displayName": "Fault Red", "canonical": "#FF6B5A", "cssVar": "--fault", "daylightTwin": "fault-day", "tonalRamp": ["#2B0A06", "#4A110B", "#6E1A11", "#B3261E", "#D9453A", "#FF6B5A", "#FFA096", "#FFD8D3"] },
+      "plate-day": { "role": "neutral", "displayName": "Warm-Neutral Daylight Plate", "canonical": "#E7E5E2", "cssVar": "--plate (light scheme)", "tonalRamp": ["#1A1916", "#2E2C28", "#46433D", "#65625C", "#9A968F", "#D0CDC8", "#E7E5E2", "#F6F4F1"] },
+      "field-day": { "role": "neutral", "displayName": "Daylight Field", "canonical": "#F6F4F1", "cssVar": "--field (light scheme)" },
+      "field-down-day": { "role": "neutral", "displayName": "Daylight Finger-Down Wash", "canonical": "#0000000d", "cssVar": "--field-down (light scheme)" },
+      "seam-day": { "role": "neutral", "displayName": "Daylight Seam", "canonical": "#D0CDC8", "cssVar": "--seam (light scheme)" },
+      "ink-day": { "role": "neutral", "displayName": "Daylight Ink", "canonical": "#1A1916", "cssVar": "--ink (light scheme)" },
+      "ink-dim-day": { "role": "neutral", "displayName": "Daylight Dimmed Ink", "canonical": "#56534E", "cssVar": "--ink-dim (light scheme)" },
+      "ink-faint-day": { "role": "neutral", "displayName": "Daylight Faint Ink", "canonical": "#65625C", "cssVar": "--ink-faint (light scheme)" },
+      "lamp-day": { "role": "primary", "displayName": "Daylight Lamp Amber", "canonical": "#8A4E00", "cssVar": "--lamp (light scheme)" },
+      "lamp-glow-day": { "role": "primary", "displayName": "Daylight Lamp Glow", "canonical": "rgba(138, 78, 0, 0.22)", "cssVar": "--lamp-glow (light scheme)" },
+      "lamp-wash-day": { "role": "primary", "displayName": "Daylight Lamp Wash", "canonical": "rgba(138, 78, 0, 0.06)", "cssVar": "--lamp-wash (light scheme)" },
+      "fault-day": { "role": "secondary", "displayName": "Daylight Fault Red", "canonical": "#B3261E", "cssVar": "--fault (light scheme)" }
+    },
+    "typographyMeta": {
+      "body": { "displayName": "Body", "purpose": "Base stack set on body; the compose input's 16px size is load-bearing because anything smaller makes iOS zoom the page. Tabular numerals are global." },
+      "glyph": { "displayName": "Hardware Glyph", "purpose": "The modifier and chord symbols printed on Apple keyboards. Typed characters, never drawn icons." },
+      "keycap": { "displayName": "Keycap", "purpose": "The face of a word key (Click, Right click). Weight 500 on wide keys." },
+      "readout": { "displayName": "Readout", "purpose": "Connection status word, uppercase at 0.16em; also the plain 13px size for ghost buttons, settings labels and toggles." },
+      "legend": { "displayName": "Legend", "purpose": "The ranked gesture legend on the pad: terms at 600, definitions at 400. Also isolated-key captions and settings values." },
+      "label": { "displayName": "Label", "purpose": "Uppercase keycap sublabels, host address (0.1em) and app tile names (0.02em, not uppercased)." },
+      "section": { "displayName": "Section Title", "purpose": "Sheet titles. The widest tracking in the system (0.2em) and the only heading-like role." }
+    },
+    "shadows": [
+      { "name": "indicator-glow", "value": "0 0 0.5rem var(--lamp-glow)", "purpose": "The live connection lamp. Zero-offset, so it reads as light rather than elevation." },
+      { "name": "engagement-glow", "value": "0 0 0.75rem var(--lamp-glow)", "purpose": "The trackpad border during an active drag." },
+      { "name": "engagement-ring", "value": "inset 0 0 0 1px var(--lamp), 0 0 0.75rem var(--lamp-glow)", "purpose": "A latched modifier or held-Command key. The named signature; always accompanied by amber border, text and wash so the glow is never the only signal." }
+    ],
+    "motion": [
+      { "name": "step", "value": "90ms linear", "purpose": "The system step (--step). Used only on the gesture flash's opacity. Nothing eases; state lands in two frames because easing reads as lag." },
+      { "name": "sheet-slide", "value": "transform 220ms cubic-bezier(.2,.75,.25,1)", "purpose": "The one eased moment in the system: a sheet rising from translateY(110%) to 0." },
+      { "name": "lamp-warm", "value": "warm 260ms cubic-bezier(.2,.7,.3,1)", "purpose": "The one authored animation: the connection lamp warming from a zero-radius glow at 0.4 opacity to full when the link comes up." },
+      { "name": "reduced-motion-gate", "value": "@media (prefers-reduced-motion: no-preference)", "purpose": "All three motion tokens live inside this gate. With reduced motion, every state change is instant." }
+    ],
+    "breakpoints": [
+      { "name": "none", "value": "n/a", "purpose": "Single-surface iOS Safari client. No width breakpoints exist; the layout adapts through flex, env(safe-area-inset-*), 60vh/28vh caps and a JS pad floor (PAD_FLOOR = 150px) measured off visualViewport." }
+    ],
+    "targets": [
+      { "name": "primary", "value": "3.25rem (52px)", "purpose": "--target: the floor for anything the thumb must hit in the main column." },
+      { "name": "secondary", "value": "2.75rem (44px)", "purpose": "Apple's own minimum; the floor for compact sheet keys, ghost buttons and the compose input." }
+    ]
+  },
+  "components": [
+    {
+      "name": "Key",
+      "kind": "button",
+      "refersTo": "key",
+      "description": "The system primitive: a field plate with a seam border and a guaranteed 52px target. Holds a hardware glyph, a sprite icon, a word, or an icon plus an uppercase caption.",
+      "html": "<button class=\"ds-key\"><span class=\"ds-key-glyph\">&#8984;</span><span class=\"ds-key-cap\">cmd</span></button>",
+      "css": ".ds-key { min-height: 3.25rem; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.25rem; padding: 0.25rem 0.375rem; background: var(--field, #15161A); border: 1px solid var(--seam, #23252B); border-radius: var(--radius, 5px); color: var(--ink, #E9E6DF); font: 400 0.9375rem/1.3 -apple-system, \"SF Pro Text\", system-ui, sans-serif; } .ds-key-glyph { font-size: 1.0625rem; line-height: 1; font-weight: 500; } .ds-key-cap { font-size: 0.6875rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-faint, #7C818B); } .ds-key:active { background: var(--field-down, #1F212733); } .ds-key:focus-visible { outline: 2px solid var(--lamp, #FFB546); outline-offset: 2px; }"
+    },
+    {
+      "name": "Key, Engaged (the lamp ring)",
+      "kind": "button",
+      "refersTo": "key-pressed",
+      "description": "The signature. A latched modifier or held Command wears amber border, text, wash, inset ring and outer glow for exactly as long as the state is held.",
+      "html": "<button class=\"ds-key-on\" aria-pressed=\"true\"><span class=\"ds-key-on-glyph\">&#8984;</span><span class=\"ds-key-on-cap\">cmd</span></button>",
+      "css": ".ds-key-on { min-height: 3.25rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.25rem; padding: 0.25rem 0.375rem; background: var(--lamp-wash, rgba(255,181,70,0.07)); border: 1px solid var(--lamp, #FFB546); border-radius: var(--radius, 5px); color: var(--lamp, #FFB546); font: 400 0.9375rem/1.3 -apple-system, \"SF Pro Text\", system-ui, sans-serif; box-shadow: inset 0 0 0 1px var(--lamp, #FFB546), 0 0 0.75rem var(--lamp-glow, rgba(255,181,70,0.30)); } .ds-key-on-glyph { font-size: 1.0625rem; line-height: 1; font-weight: 500; } .ds-key-on-cap { font-size: 0.6875rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--lamp, #FFB546); } .ds-key-on:active { background: var(--field-down, #1F212733); }"
+    },
+    {
+      "name": "Key, Isolated",
+      "kind": "button",
+      "refersTo": "key-isolated",
+      "description": "The outline variant for system-disrupting gestures and panel openers: transparent ground, seam border only, held apart from its neighbours by a 20px gap rather than a divider.",
+      "html": "<button class=\"ds-key-iso\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"4\" width=\"8\" height=\"6\" rx=\"1\"/><rect x=\"13\" y=\"4\" width=\"8\" height=\"6\" rx=\"1\"/><rect x=\"3\" y=\"14\" width=\"8\" height=\"6\" rx=\"1\"/><rect x=\"13\" y=\"14\" width=\"8\" height=\"6\" rx=\"1\"/></g></svg><span class=\"ds-key-iso-cap\">Mission Control</span></button>",
+      "css": ".ds-key-iso { min-height: 3.25rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.25rem; padding: 0.25rem 0.375rem; margin-top: 1.25rem; background: transparent; border: 1px solid var(--seam, #23252B); border-radius: var(--radius, 5px); color: var(--ink, #E9E6DF); font: 400 0.9375rem/1.3 -apple-system, \"SF Pro Text\", system-ui, sans-serif; } .ds-key-iso svg { width: 1.25rem; height: 1.25rem; display: block; } .ds-key-iso-cap { font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint, #7C818B); } .ds-key-iso:active { background: var(--field-down, #1F212733); } .ds-key-iso:focus-visible { outline: 2px solid var(--lamp, #FFB546); outline-offset: 2px; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "ghost",
+      "description": "Sheet-only secondary action (Done, Refresh) at the 44px floor. Never used for anything that changes the Mac.",
+      "html": "<button class=\"ds-ghost\">Done</button>",
+      "css": ".ds-ghost { min-height: 2.75rem; padding: 0 0.875rem; background: transparent; border: 1px solid var(--seam, #23252B); border-radius: var(--radius, 5px); color: var(--ink-dim, #878D99); font: 400 0.8125rem/1.3 -apple-system, \"SF Pro Text\", system-ui, sans-serif; display: inline-flex; align-items: center; gap: 0.375rem; } .ds-ghost svg { width: 1.0625rem; height: 1.0625rem; } .ds-ghost:active { background: var(--field-down, #1F212733); } .ds-ghost:focus-visible { outline: 2px solid var(--lamp, #FFB546); outline-offset: 2px; }"
+    },
+    {
+      "name": "Trackpad",
+      "kind": "custom",
+      "refersTo": "pad",
+      "description": "The product's centre: one large unmarked field with an engraved inner rule and a ranked gesture legend. Absorbs all spare height, never drops below its floor, and goes amber-bordered during a drag.",
+      "html": "<div class=\"ds-pad\"><dl class=\"ds-pad-legend\"><dt>One finger</dt><dd>move, tap to click</dd><dt>Two fingers</dt><dd>scroll, tap to right-click</dd><dt>Tap then hold</dt><dd>drag</dd></dl></div>",
+      "css": ".ds-pad { position: relative; min-height: 8.5rem; margin: 0.75rem 0.75rem 0; background: var(--field, #15161A); border: 1px solid var(--seam, #23252B); border-radius: var(--radius, 5px); display: flex; align-items: flex-end; justify-content: center; padding-top: 1rem; overflow: hidden; } .ds-pad::before { content: \"\"; position: absolute; inset: 0.625rem; border: 1px solid var(--seam, #23252B); opacity: 0.5; pointer-events: none; } .ds-pad-legend { position: relative; display: grid; grid-template-columns: auto auto; gap: 0.45rem 0.875rem; padding: 0 1rem 1.125rem; font-size: 0.75rem; line-height: 1.25; } .ds-pad-legend dt { justify-self: end; color: var(--ink-dim, #878D99); font-weight: 600; letter-spacing: 0.04em; } .ds-pad-legend dd { color: var(--ink-faint, #7C818B); } .ds-pad:active { border-color: var(--lamp, #FFB546); box-shadow: 0 0 0.75rem var(--lamp-glow, rgba(255,181,70,0.30)); }"
+    },
+    {
+      "name": "Connection Indicator",
+      "kind": "nav",
+      "refersTo": "indicator-lamp-live",
+      "description": "The first thing read on the surface: round lamp, uppercase status word, host address at the right edge. Live is amber with a glow; fault turns both lamp and word red, so state never rests on hue alone.",
+      "html": "<div class=\"ds-ind\"><span class=\"ds-ind-lamp\"></span><span class=\"ds-ind-state\">Connected</span><span class=\"ds-ind-host\">192.168.1.24</span></div>",
+      "css": ".ds-ind { display: flex; align-items: center; gap: 0.625rem; padding: 1rem 1.125rem 0.875rem; border-bottom: 1px solid var(--seam, #23252B); color: var(--ink, #E9E6DF); font: 400 1rem/1.3 -apple-system, \"SF Pro Text\", system-ui, sans-serif; } .ds-ind-lamp { width: 0.625rem; height: 0.625rem; border-radius: 50%; flex: 0 0 auto; background: var(--lamp, #FFB546); box-shadow: 0 0 0.5rem var(--lamp-glow, rgba(255,181,70,0.30)); } .ds-ind-state { font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .ds-ind-host { margin-left: auto; font-size: 0.6875rem; letter-spacing: 0.1em; color: var(--ink-faint, #7C818B); }"
+    },
+    {
+      "name": "Compose Input",
+      "kind": "input",
+      "refersTo": "compose-input",
+      "description": "The one text field in the system; it hands typing to the iPhone's own keyboard. The 16px size is load-bearing because anything smaller makes iOS zoom the page.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Type here\">",
+      "css": ".ds-input { min-height: 2.75rem; min-width: 0; padding: 0 0.75rem; background: var(--field, #15161A); border: 1px solid var(--seam, #23252B); border-radius: var(--radius, 5px); color: var(--ink, #E9E6DF); font: 400 1rem/1.3 -apple-system, \"SF Pro Text\", system-ui, sans-serif; caret-color: var(--lamp, #FFB546); accent-color: var(--ink-dim, #878D99); } .ds-input::placeholder { color: var(--ink-faint, #7C818B); } .ds-input:focus-visible { outline: 2px solid var(--lamp, #FFB546); outline-offset: 2px; }"
+    },
+    {
+      "name": "App Tile",
+      "kind": "card",
+      "refersTo": "app-tile",
+      "description": "A tile in the four-column running-app grid. The frontmost app takes an amber border and label; the same engagement vocabulary, without a glow at tile scale.",
+      "html": "<button class=\"ds-app\" aria-current=\"true\"><img src=\"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\" alt=\"\"><span>Safari</span></button>",
+      "css": ".ds-app { display: flex; flex-direction: column; align-items: center; gap: 0.375rem; padding: 0.625rem 0.25rem; background: var(--field, #15161A); border: 1px solid var(--seam, #23252B); border-radius: var(--radius, 5px); color: var(--ink-faint, #7C818B); font: 400 0.6875rem/1.3 -apple-system, \"SF Pro Text\", system-ui, sans-serif; letter-spacing: 0.02em; } .ds-app img { width: 2.25rem; height: 2.25rem; } .ds-app span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .ds-app[aria-current=\"true\"] { border-color: var(--lamp, #FFB546); color: var(--lamp, #FFB546); } .ds-app:active { background: var(--field-down, #1F212733); }"
+    },
+    {
+      "name": "Sheet",
+      "kind": "custom",
+      "refersTo": "sheet",
+      "description": "A bottom-anchored panel on the plate colour, closed by a single seam along the top. The one eased moment in the system: 220ms slide from translateY(110%).",
+      "html": "<section class=\"ds-sheet\" data-open=\"yes\"><div class=\"ds-sheet-head\"><h2>Settings</h2></div></section>",
+      "css": ".ds-sheet { position: relative; max-height: 60vh; overflow-y: auto; background: var(--plate, #0B0B0D); border-top: 1px solid var(--seam, #23252B); padding: 0.75rem; color: var(--ink, #E9E6DF); transform: translateY(110%); transition: transform 220ms cubic-bezier(.2,.75,.25,1); } .ds-sheet[data-open=\"yes\"] { transform: translateY(0); } .ds-sheet-head { display: flex; align-items: center; gap: 0.5rem; padding: 0 0.25rem 0.625rem; } .ds-sheet-head h2 { flex: 1; font: 600 0.6875rem/1.3 -apple-system, \"SF Pro Text\", system-ui, sans-serif; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-dim, #878D99); margin: 0; }"
+    },
+    {
+      "name": "Gesture Flash",
+      "kind": "custom",
+      "refersTo": "pad",
+      "description": "The full-bleed confirmation printed across the pad when a multi-finger gesture fires. The only element in the system that transitions opacity, at the 90ms step.",
+      "html": "<div class=\"ds-flash\" data-show=\"yes\">Mission Control</div>",
+      "css": ".ds-flash { position: relative; display: flex; align-items: center; justify-content: center; min-height: 4rem; background: var(--lamp-wash, rgba(255,181,70,0.07)); color: var(--lamp, #FFB546); font: 600 0.875rem/1.3 -apple-system, \"SF Pro Text\", system-ui, sans-serif; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0; pointer-events: none; transition: opacity 90ms linear; } .ds-flash[data-show=\"yes\"] { opacity: 1; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Engraved Lift Panel",
+    "overview": "MacPad is a control plate, not an app screen. Everything in it is built from the discipline of a lift call panel: targets you can hit without aiming, a single lamp colour that means exactly one thing, and a spatial rhythm the thumb memorises so the eye can stay on the Mac. The plate is engraved, never moulded -- surfaces are separated by a one-pixel seam and a single step of luminance, and the only inner detail on the trackpad is a hairline rule set 10px in from its edge, which makes the field read as a plate rather than a card.\n\nLight and dark are both first-class, not a theme and its override. The product is used in a dark room with the Mac on a TV and at a lit desk, so the stylesheet declares color-scheme: dark light and ships a complete daylight twin with identical geometry on a warm-neutral plate (#E7E5E2) that shares the dark twin's warm axis. Neither scheme is a default and neither is the \"real\" one.\n\nDensity is deliberately low. One primary target size (52px) governs every control the thumb must hit, a 44px floor governs the compact keys and secondary buttons inside sheets, and controls that rearrange the Mac are separated from the rest by real empty space rather than a divider line. The system refuses the category default -- the dark grey slab with a featureless pad and a row of undersized icon buttons -- and it equally refuses brushed-metal skeuomorphism: there are no bevels, no gloss, no gradients and no metal bezels anywhere in the build. Type is the platform sans; the typographic work is carried by scale, wide tracking and tabular figures, because the page is served over the LAN with no internet and no dependency.",
+    "keyCharacteristics": [
+      "Engraved flatness: one luminance step plus a 1px seam does all the separating.",
+      "Two co-equal schemes, identical geometry, one warm axis.",
+      "One chromatic colour (amber), reserved entirely for \"engaged\".",
+      "52px primary target, 44px floor, air between banks.",
+      "Nothing eases except one 220ms sheet slide and one 260ms lamp warm.",
+      "Flat corners: a single 5px radius, plus a round indicator lamp."
+    ],
+    "rules": [
+      { "name": "The One Lamp Rule", "body": "Amber is the only chromatic colour and it means engaged, nothing else. It is never used for emphasis, branding, decoration or hierarchy. If more than a couple of elements on screen are amber at once, the lamp has stopped meaning anything.", "section": "colors" },
+      { "name": "The Luminance-Not-Hue Rule", "body": "State changes move within one palette. A control that engages goes brighter and warmer; it never swaps to a different hue family, and it never carries its state in colour alone -- the pressed key shifts border, text, background and ring together.", "section": "colors" },
+      { "name": "The Two-Step Rule", "body": "Depth is exactly two values: plate and field, one luminance step apart, divided by a 1px seam. There is no third surface level and no shadow doing the dividing.", "section": "colors" },
+      { "name": "The No-Display-Type Rule", "body": "There is no hero size and no heading ramp. The largest text in the system is 17px. Nothing on this surface is to be read from across the room; the Mac's screen is the output.", "section": "typography" },
+      { "name": "The Tracking-Carries-It Rule", "body": "Small uppercase text earns its authority from tracking, which widens as the text gets smaller and more structural: 0.04em on legend terms, 0.12em on keycaps, 0.16em on the status readout, 0.2em on sheet titles.", "section": "typography" },
+      { "name": "The Hardware-Glyph Rule", "body": "Command, Control, Option, Shift and Return-class symbols are typed characters, never drawn icons, because they are the symbols printed on the user's own keyboard. Everything else pictorial is an SVG from the sprite.", "section": "typography" },
+      { "name": "The Pad Is Never Covered Rule", "body": "The trackpad keeps a usable height no matter what is open. CSS floors it at 8.5rem; JavaScript recomputes an open sheet's max-height against a 150px pad floor and the indicator's height, and lifts the sheet above the system keyboard using visualViewport.", "section": "layout" },
+      { "name": "The Shed-Before-Shrink Rule", "body": "When a sheet opens, the pad drops its legend and the banks hide entirely rather than let the pad compress into a card. Content is given up before geometry is.", "section": "layout" },
+      { "name": "The Bottom-Reach Rule", "body": "Panel openers (Apps, Keyboard, Settings) live in the last bank at the bottom of the column, because the top corners are the hardest reach for a thumb. Frequency orders the banks; reach orders the column.", "section": "layout" },
+      { "name": "The Flat Plate Rule", "body": "No bevel, no chrome, no gloss, no gradient, no drop shadow. The plate is engraved, not moulded. Any shadow in this system is zero-offset and amber, which makes it light rather than depth.", "section": "elevation" },
+      { "name": "The Glow Is Never Alone Rule", "body": "The lamp halo is a deliberate, named exception to the usual prohibition on zero-offset glows, and it is only legitimate because it is always reinforced: engagement sets border-colour, text-colour and background wash alongside the glow, so the state survives on a surface where the glow is invisible.", "section": "elevation" },
+      { "name": "The One Radius Rule", "body": "5px everywhere, or a full circle for a lamp. There is no radius scale, no pill and no square-cornered exception.", "section": "shapes" },
+      { "name": "The Hairline Rule", "body": "Every division in the system is exactly 1px of seam colour. Weight is never used to signal importance; a division is a division.", "section": "shapes" }
+    ],
+    "dos": [
+      "Do give every thumb target the primary floor (52px / var(--target)) and never go below 44px for a secondary control inside a sheet.",
+      "Do carry engaged state with the full lamp ring -- border, text, wash and glow together -- so the state never depends on the glow alone.",
+      "Do use a 1px seam border for every division, and a 5px radius for every rectangular surface.",
+      "Do separate a disruptive control with real empty space (20px bank margin), not with a divider line.",
+      "Do ship any new token into both schemes at once; dark and light are co-equal, and the daylight twin keeps identical geometry on a warm-neutral plate.",
+      "Do keep state landing in two frames (--step: 90ms linear). The only eased moments in the system are the 220ms sheet slide and the 260ms lamp warm, both inside prefers-reduced-motion: no-preference.",
+      "Do set hardware modifier symbols as type, and everything else pictorial as a 1.6-stroke 24x24 sprite icon.",
+      "Do keep the pad usable at all times: cap sheets against the pad floor and drop the legend before the pad shrinks.",
+      "Do theme the browser's own surfaces from the palette -- selection, caret, focus ring, scrollbar, accent-color, tabular numerals."
+    ],
+    "donts": [
+      "Don't introduce a second chromatic colour, or spend amber on anything other than \"engaged\". Fault red is the single exception and it is reserved for disconnection.",
+      "Don't add a bevel, gloss, gradient, metal bezel or offset drop shadow. Every shadow in this system is a zero-offset amber glow or an inset amber ring.",
+      "Don't signal state with hue. Engagement is luminance within one palette.",
+      "Don't add a radius scale. 5px, or a circle for a lamp.",
+      "Don't add a display size or a heading ramp. 17px is the largest type in the system.",
+      "Don't attach meaning to hover; the surface is touch-only and hover never fires.",
+      "Don't draw a QWERTY keyboard. Text entry is the iPhone's own keyboard; the sheet supplies only what iOS cannot send to a Mac.",
+      "Don't let a sheet cover the trackpad, or let the pad compress into a card to make room.",
+      "Don't add a webfont, icon font or any third-party asset. The page must load over the LAN with no internet, which is why the platform sans ships.",
+      "Don't animate an engaged state on. The ring appears in two frames and stays as long as the state is held."
+    ]
+  }
+}

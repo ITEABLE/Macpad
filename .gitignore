@@ -9,3 +9,9 @@ build/
 
 # Working notes, not part of the product
 STATUS.md
+
+# Design tooling. DESIGN.md and PRODUCT.md are the durable record and stay
+# tracked; design.json is their machine-readable pair. Everything else here is
+# scaffolding from one design round.
+.impeccable/*
+!.impeccable/design.json

@@ -1,145 +1,391 @@
+/* MacPad -- control surface for a Mac, operated from a phone.
+
+   Built from the discipline of a lift call panel: guaranteed target sizes,
+   one lamp colour that means exactly one thing, and a rhythm the thumb can
+   learn without the eye. Flat throughout; the plate is engraved, not moulded.
+
+   Light and dark are both first-class. The product is used in a dark room
+   with the Mac on a TV and at a lit desk, so neither is a default. */
+
 :root {
-  --bg: #0b0d10;
-  --pad: #15181d;
-  --pad-active: #1d2229;
-  --btn: #1a1e24;
-  --btn-down: #2b323c;
-  --line: #262b33;
-  --text: #e8ecf2;
-  --dim: #7c8796;
-  --ok: #35c759;
-  --bad: #ff453a;
-  --accent: #0a84ff;
+  color-scheme: dark light;
+
+  --plate:      #0B0B0D;   /* page ground */
+  --field:      #15161A;   /* raised surfaces: pad, keys */
+  --field-down: #1F212733; /* key under the finger */
+  --seam:       #23252B;   /* hairline divisions */
+  --ink:        #E9E6DF;
+  --ink-dim:    #878D99;
+  --ink-faint:  #7C818B;
+
+  --lamp:       #FFB546;   /* engaged. the only chromatic colour */
+  --lamp-glow:  rgba(255, 181, 70, 0.30);
+  --lamp-wash:  rgba(255, 181, 70, 0.07);
+  --fault:      #FF6B5A;   /* disconnected */
+
+  --target:     3.25rem;   /* floor for anything the thumb must hit */
+  --seam-w:     1px;
+  --radius:     5px;
+
+  --step:       90ms;      /* nothing eases; state lands in two frames */
 }
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --plate:      #E7E5E2;
+    --field:      #F6F4F1;
+    --field-down: #0000000d;
+    --seam:       #D0CDC8;
+    --ink:        #1A1916;
+    --ink-dim:    #56534E;
+    --ink-faint:  #65625C;
+    --lamp:       #8A4E00;
+    --lamp-glow:  rgba(138, 78, 0, 0.22);
+    --lamp-wash:  rgba(138, 78, 0, 0.06);
+    --fault:      #B3261E;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* The icon sprite is a definition, not a picture. Inline SVG ignores the
+   hidden attribute in some engines and lays out at its default 300x150. */
+svg[hidden] { display: none; }
+
 html, body {
-  margin: 0; padding: 0; height: 100%; overflow: hidden;
-  background: var(--bg); color: var(--text);
-  font: 15px/1.3 -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
-  -webkit-user-select: none; user-select: none;
-  overscroll-behavior: none; touch-action: none;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
+
 body {
-  display: flex; flex-direction: column;
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  background: var(--plate);
+  color: var(--ink);
+  font: 400 1rem/1.3 -apple-system, "SF Pro Text", system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  flex-direction: column;
+  padding:
+    env(safe-area-inset-top) env(safe-area-inset-right)
+    env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
-/* ---------- status bar ---------- */
-#bar { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; padding: 8px 12px; font-size: 12px; color: var(--dim); }
-#dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bad); transition: background .2s; }
-#dot.on { background: var(--ok); }
-#bar .spacer { flex: 1; }
-.chip { padding: 5px 11px; border-radius: 9px; background: var(--btn); border: 1px solid var(--line); color: var(--dim); font-size: 12px; }
-.chip:active { background: var(--btn-down); }
+/* Browser surfaces inherit the plate rather than the user agent. */
+::selection { background: var(--lamp); color: var(--plate); }
+:focus-visible { outline: 2px solid var(--lamp); outline-offset: 2px; }
+input { caret-color: var(--lamp); accent-color: var(--ink-dim); }
 
-/* ---------- trackpad ---------- */
-#pad {
-  flex: 1 1 auto; position: relative; margin: 0 10px; min-height: 90px;
-  background: var(--pad); border: 1px solid var(--line); border-radius: 18px;
-  display: flex; align-items: center; justify-content: center; overflow: hidden;
-  transition: background .08s, margin-bottom .25s cubic-bezier(.3,.8,.3,1);
-}
-#pad.touching { background: var(--pad-active); }
-#pad.dragging { border-color: var(--accent); }
-#hint { text-align: center; color: var(--dim); font-size: 12px; line-height: 1.95; pointer-events: none; transition: opacity .25s; padding: 0 16px; }
-#pad.touching #hint { opacity: .14; }
-#hint b { color: #9aa6b5; font-weight: 600; }
-#flash {
-  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-  font-size: 17px; font-weight: 600; color: var(--accent); letter-spacing: .3px;
-  opacity: 0; pointer-events: none; transition: opacity .18s;
-  background: rgba(10,132,255,.07);
-}
-#flash.show { opacity: 1; }
+/* ---- the indicator: connection state, read before anything else ---- */
 
-/* ---------- buttons ---------- */
-#controls { flex: 0 0 auto; padding: 9px 10px 10px; display: flex; flex-direction: column; gap: 7px; }
-.row { display: flex; gap: 7px; }
-button {
-  flex: 1; min-width: 0; min-height: 48px; border: 1px solid var(--line); border-radius: 12px;
-  background: var(--btn); color: var(--text); font-size: 15px; font-family: inherit;
-  display: flex; align-items: center; justify-content: center; gap: 4px; padding: 0 2px;
+.indicator {
+  flex: 0 0 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 1rem 1.125rem 0.875rem;
+  border-bottom: var(--seam-w) solid var(--seam);
 }
-button:active { background: var(--btn-down); }
-button.wide { flex: 2; }
-button .sub { font-size: 9.5px; color: var(--dim); }
-button.lbl { flex-direction: column; gap: 1px; }
 
-/* ---------- sheets ---------- */
+.lamp {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  background: var(--ink-faint);
+  flex: 0 0 auto;
+}
+.indicator[data-state="live"]  .lamp { background: var(--lamp);  box-shadow: 0 0 0.5rem var(--lamp-glow); }
+.indicator[data-state="fault"] .lamp { background: var(--fault); }
+
+.state {
+  flex: 0 1 auto;
+  font-size: 0.8125rem;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.indicator[data-state="fault"] .state { color: var(--fault); }
+
+.host {
+  margin-left: auto;
+  flex: 0 0 auto;
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  color: var(--ink-faint);
+}
+
+/* ---- the pad: one large unmarked field ---- */
+
+.pad {
+  flex: 1 1 auto;
+  min-height: 8.5rem;
+  position: relative;
+  margin: 0.75rem 0.75rem 0;
+  background: var(--field);
+  border: var(--seam-w) solid var(--seam);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-top: 1rem;
+  overflow: hidden;
+}
+/* An engraved inner rule, so the field reads as a plate and not a card. */
+.pad::before {
+  content: "";
+  position: absolute;
+  inset: 0.625rem;
+  border: var(--seam-w) solid var(--seam);
+  opacity: 0.5;
+  pointer-events: none;
+}
+.pad[data-engaged="drag"] {
+  border-color: var(--lamp);
+  box-shadow: 0 0 0.75rem var(--lamp-glow);
+}
+
+/* The legend is ranked and each symbol means exactly one thing. */
+.legend {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 0.45rem 0.875rem;
+  padding: 0 1rem 1.125rem;
+  font-size: 0.75rem;
+  line-height: 1.25;
+}
+.legend dt {
+  justify-self: end;
+  color: var(--ink-dim);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.legend dd { color: var(--ink-faint); }
+.pad[data-touching="yes"] .legend { opacity: 0.25; }
+
+.flash {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--lamp-wash);
+  color: var(--lamp);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0;
+  pointer-events: none;
+}
+.flash[data-show="yes"] { opacity: 1; }
+
+/* ---- control banks ---- */
+
+.banks { flex: 0 0 auto; min-width: 0; padding: 0.625rem 0.75rem 0.75rem; }
+
+.bank {
+  display: grid;
+  gap: 0.375rem;
+  margin-top: 0.375rem;
+}
+.bank[data-cols="2"] { grid-template-columns: 2fr 1fr; }
+.bank[data-cols="3"] { grid-template-columns: repeat(3, 1fr); }
+.bank[data-cols="4"] { grid-template-columns: repeat(4, 1fr); }
+.bank[data-cols="5"] { grid-template-columns: repeat(5, 1fr); }
+
+/* Gestures that disrupt the Mac are held apart by real space, not a rule. */
+.bank[data-isolated] { margin-top: 1.25rem; }
+
+.key {
+  min-width: 0;
+  min-height: var(--target);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.375rem;
+  background: var(--field);
+  border: var(--seam-w) solid var(--seam);
+  border-radius: var(--radius);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.9375rem;
+}
+.key:active { background: var(--field-down); }
+
+.key .glyph { font-size: 1.0625rem; line-height: 1; font-weight: 500; }
+.key .cap {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.key svg { width: 1.25rem; height: 1.25rem; display: block; }
+
+.key[data-isolated] { background: transparent; }
+.key[data-isolated] .cap { font-size: 0.75rem; letter-spacing: 0.08em; }
+.key[data-wide] { font-size: 0.9375rem; font-weight: 500; }
+
+/* The signature: anything engaged wears the lamp for as long as it is held. */
+.key[aria-pressed="true"] {
+  border-color: var(--lamp);
+  color: var(--lamp);
+  background: var(--lamp-wash);
+  box-shadow: inset 0 0 0 1px var(--lamp), 0 0 0.75rem var(--lamp-glow);
+}
+.key[aria-pressed="true"] .cap { color: var(--lamp); }
+
+/* ---- sheets ---- */
+
 .sheet {
-  position: fixed; left: 0; right: 0; bottom: 0; background: #11151a;
-  border-top: 1px solid var(--line); border-radius: 16px 16px 0 0;
-  padding: 12px 10px calc(10px + env(safe-area-inset-bottom));
-  transform: translateY(110%); transition: transform .25s cubic-bezier(.3,.8,.3,1);
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
   z-index: 10;
+  max-height: 60vh;
+  overflow-y: auto;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+  background: var(--plate);
+  border-top: var(--seam-w) solid var(--seam);
+  padding: 0.75rem 0.75rem calc(0.75rem + env(safe-area-inset-bottom));
+  transform: translateY(110%);
 }
-.sheet.open { transform: translateY(0); }
-/* The keyboard covers the control rows anyway, so give their space to the
-   trackpad. The exact bottom margin is measured from the sheet in JS. */
-body.kbopen #controls { display: none; }
-/* While typing the pad is a working surface, not a cheat sheet: drop the
-   hint text and guarantee it stays big enough to aim with. */
-body.kbopen #hint { display: none; }
-body.kbopen #pad { min-height: 150px; }
+.sheet[data-open="yes"] { transform: translateY(0); }
 
-/* iPhone keyboard is up: it already gives letters, space, return and
-   backspace, so hide ours and keep only what it cannot do - the Mac
-   shortcuts, the modifier keys and the arrows. */
-body.nativekb #keys,
-body.nativekb #kb .utilrow { display: none; }
-body.nativekb #kb { padding-bottom: 8px; }
-body.nativekb #kb .krow.sys button { min-height: 34px; font-size: 11px; }
-body.nativekb #kb .krow button { min-height: 38px; }
-body.nativekb #pad { min-height: 0; }
-
-/* ---------- keyboard ---------- */
-#kb .krow { display: flex; gap: 5px; margin-bottom: 5px; }
-#kb button { min-height: 42px; font-size: 16px; border-radius: 9px; }
-#kb .krow.sys button { min-height: 38px; font-size: 11.5px; color: var(--dim); }
-#kb button.mod.on { background: var(--accent); border-color: var(--accent); color: #fff; }
-#kb button.space { flex: 3.2; font-size: 12px; color: var(--dim); }
-#kb button.util { font-size: 12.5px; color: var(--dim); }
-#kb .toprow { display: flex; gap: 6px; align-items: center; margin-bottom: 9px; }
-#native {
-  flex: 1; min-width: 0; background: var(--btn); border: 1px solid var(--line);
-  border-radius: 10px; color: var(--text); padding: 11px; font-size: 16px; font-family: inherit;
+.sheet-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 0.25rem 0.625rem;
 }
-#native::placeholder { color: #5a6472; }
-#kb .toprow button { flex: 0 0 64px; min-height: 42px; font-size: 13px; }
-
-/* ---------- app switcher ---------- */
-#apps .head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-#apps .head b { flex: 1; font-size: 13px; color: var(--dim); font-weight: 600; letter-spacing: .5px; }
-#apps .head button { flex: 0 0 68px; min-height: 38px; font-size: 13px; }
-#apps .krow { display: flex; gap: 6px; margin-bottom: 10px; }
-#apps .krow button { min-height: 46px; font-size: 14px; }
-#apps .krow button:disabled { opacity: .3; }
-#appGrid {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
-  max-height: 34vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
-  touch-action: pan-y; padding-bottom: 4px;
+.sheet-head h2 {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  flex: 1;
 }
+
+.ghost {
+  min-height: 2.75rem;
+  padding: 0 0.875rem;
+  background: transparent;
+  border: var(--seam-w) solid var(--seam);
+  border-radius: var(--radius);
+  color: var(--ink-dim);
+  font: inherit;
+  font-size: 0.8125rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+.ghost:active { background: var(--field-down); }
+.ghost svg { width: 1.0625rem; height: 1.0625rem; }
+
+/* keyboard */
+.krow { display: grid; gap: 0.375rem; margin-top: 0.375rem; }
+.krow[data-cols="6"] { grid-template-columns: repeat(6, 1fr); }
+.krow[data-cols="4"] { grid-template-columns: repeat(4, 1fr); }
+.krow .key { min-height: 2.75rem; }
+
+.compose { display: flex; gap: 0.375rem; padding-bottom: 0.625rem; }
+.compose input {
+  flex: 1;
+  min-width: 0;
+  min-height: 2.75rem;
+  padding: 0 0.75rem;
+  background: var(--field);
+  border: var(--seam-w) solid var(--seam);
+  border-radius: var(--radius);
+  color: var(--ink);
+  font: inherit;
+  font-size: 1rem; /* 16px: anything smaller makes iOS zoom the page */
+}
+.compose input::placeholder { color: var(--ink-faint); }
+
+/* The pad is the product: it drops the legend and the banks rather than
+   shrink into a card. Its floor lives with the rest of the pad rules above. */
+body[data-sheet="open"] .legend { display: none; }
+body[data-sheet="open"] .banks { display: none; }
+
+/* apps */
+.appgrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  max-height: 28vh;
+  overflow-y: auto;
+  touch-action: pan-y;
+  scrollbar-width: thin;
+  scrollbar-color: var(--seam) transparent;
+}
+.appgrid::-webkit-scrollbar { width: 3px; }
+.appgrid::-webkit-scrollbar-thumb { background: var(--seam); }
+
 .app {
-  display: flex; flex-direction: column; align-items: center; gap: 5px;
-  padding: 9px 3px; border-radius: 12px; background: var(--btn);
-  border: 1px solid var(--line); min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.625rem 0.25rem;
+  background: var(--field);
+  border: var(--seam-w) solid var(--seam);
+  border-radius: var(--radius);
+  color: var(--ink-faint);
+  font: inherit;
+  font-size: 0.6875rem;
+  letter-spacing: 0.02em;
 }
-.app:active { background: var(--btn-down); }
-.app.front { border-color: var(--accent); }
-.app img { width: 36px; height: 36px; }
-.app span {
-  font-size: 9.5px; color: var(--dim); text-align: center; line-height: 1.2;
-  max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-#appEmpty { color: var(--dim); font-size: 12px; text-align: center; padding: 18px 0; }
+.app[aria-current="true"] { border-color: var(--lamp); color: var(--lamp); }
+.app img { width: 2.25rem; height: 2.25rem; }
+.app span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.appempty { padding: 1.25rem 0; text-align: center; color: var(--ink-faint); font-size: 0.8125rem; }
 
-/* ---------- settings ---------- */
-#settings { padding: 18px 18px calc(18px + env(safe-area-inset-bottom)); }
-#settings h3 { margin: 0 0 14px; font-size: 13px; color: var(--dim); font-weight: 600; letter-spacing: .5px; }
-.field { margin-bottom: 15px; }
-.field label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 7px; }
-.field label span { color: var(--dim); }
-input[type=range] { width: 100%; accent-color: var(--accent); height: 28px; }
-.toggle { display: flex; justify-content: space-between; align-items: center; font-size: 14px; padding: 5px 0; }
-input[type=checkbox] { width: 46px; height: 28px; accent-color: var(--accent); }
-.note { font-size: 11.5px; color: #5f6a78; line-height: 1.6; margin: 10px 0 14px; }
+/* settings */
+.field { padding: 0.625rem 0.25rem; border-bottom: var(--seam-w) solid var(--seam); }
+.field > label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.8125rem;
+  margin-bottom: 0.5rem;
+}
+.field .value { color: var(--ink); font-size: 0.75rem; letter-spacing: 0.08em; }
+.field input[type="range"] { width: 100%; height: 1.75rem; }
+
+.toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 0.25rem;
+  font-size: 0.8125rem;
+}
+.toggle input { width: 3rem; height: 1.75rem; flex: 0 0 auto; }
+.note { padding: 0.75rem 0.25rem 0; color: var(--ink-faint); font-size: 0.75rem; line-height: 1.6; }
+
+@media (prefers-reduced-motion: no-preference) {
+  /* The one authored moment: the lamp warms when the link comes up.
+     Everything else lands in two frames, because easing reads as lag. */
+  .indicator[data-state="live"] .lamp { animation: warm 260ms cubic-bezier(.2,.7,.3,1); }
+  .flash { transition: opacity var(--step) linear; }
+  .sheet { transition: transform 220ms cubic-bezier(.2,.75,.25,1); }
+}
+@keyframes warm {
+  from { box-shadow: 0 0 0 var(--lamp-glow); opacity: 0.4; }
+  to   { box-shadow: 0 0 0.5rem var(--lamp-glow); opacity: 1; }
+}

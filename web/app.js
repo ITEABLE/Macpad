@@ -2,7 +2,9 @@
 
 const TOKEN = document.querySelector('meta[name="macpad-token"]').content;
 const $ = (id) => document.getElementById(id);
-const pad = $("pad"), dot = $("dot"), statusEl = $("status"), flash = $("flash");
+const pad = $("pad"), statusEl = $("status"), flash = $("flash");
+const indicator = $("indicator"), host = $("host");
+host.textContent = location.host.replace(/:\d+$/, "");
 
 // Settings
 const defaults = { sens: 1.8, scrollSpeed: 1, gestThresh: 55, natural: true,
@@ -32,17 +34,37 @@ for (const k of ["natural", "accel", "gestures", "rightTap", "diag"]) {
 
 // Sheets
 const kb = $("kb"), settings = $("settings"), appsSheet = $("apps");
+const isOpen = (el) => el.dataset.open === "yes";
+const setOpen = (el, open) => { el.dataset.open = open ? "yes" : "no"; };
 
 // Sheet height varies with the active layer and the device, so measure it.
 // A hardcoded value leaves a dead band between the pad and the keyboard.
-function fitPadToKeyboard() {
-  if (!kb.classList.contains("open")) { pad.style.marginBottom = ""; return; }
+// The trackpad is the product, so it is never fully covered. Whichever sheet
+// is open is capped to leave the pad a usable height, and the pad is pushed up
+// by exactly the sheet plus whatever the iOS keyboard is covering.
+const PAD_FLOOR = 150;
+
+function openSheet() {
+  return [kb, appsSheet, settings].find((el) => el && isOpen(el)) || null;
+}
+
+function fitPad() {
+  const sheet = openSheet();
+  document.body.dataset.sheet = sheet ? "open" : "none";
+  if (!sheet) { pad.style.marginBottom = ""; return; }
   requestAnimationFrame(() => {
-    const h = kb.offsetHeight || 0;
-    const lift = parseFloat(kb.style.bottom) || 0;
+    const vv = window.visualViewport;
+    const visible = (vv && vv.height) || window.innerHeight || 0;
+    const headroom = visible - PAD_FLOOR - indicator.offsetHeight;
+    if (headroom > 0) sheet.style.maxHeight = headroom + "px";
+    const lift = parseFloat(sheet.style.bottom) || 0;
+    const h = sheet.offsetHeight || 0;
     pad.style.marginBottom = h ? (h + lift) + "px" : "";
   });
 }
+
+// Kept as an alias so every existing caller still reads clearly.
+const fitPadToKeyboard = fitPad;
 
 // iOS doesn't shrink the layout viewport for its keyboard, so a sheet pinned
 // to the bottom ends up behind it. visualViewport reports the covered height.
@@ -50,30 +72,31 @@ function liftAboveNativeKeyboard() {
   const vv = window.visualViewport;
   if (!vv) return;
   const covered = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
-  kb.style.bottom = covered ? covered + "px" : "";
-  fitPadToKeyboard();
+  const sheet = openSheet() || kb;
+  sheet.style.bottom = covered ? covered + "px" : "";
+  fitPad();
 }
 if (window.visualViewport) {
   window.visualViewport.addEventListener("resize", liftAboveNativeKeyboard);
   window.visualViewport.addEventListener("scroll", liftAboveNativeKeyboard);
 }
 const openKb = () => {
-  settings.classList.remove("open"); closeApps();
-  kb.classList.add("open"); document.body.classList.add("kbopen");
+  setOpen(settings, false); closeApps();
+  setOpen(kb, true); document.body.dataset.nativeKeyboard = "no";
   fitPadToKeyboard();
 };
 const closeKb = () => {
-  kb.classList.remove("open"); document.body.classList.remove("kbopen");
+  setOpen(kb, false); delete document.body.dataset.nativeKeyboard;
   $("native").blur();
   fitPadToKeyboard();
 };
-$("openKb").addEventListener("click", () => kb.classList.contains("open") ? closeKb() : openKb());
+$("openKb").addEventListener("click", () => isOpen(kb) ? closeKb() : openKb());
 $("kbDone").addEventListener("click", () => {
   if (nativeFocused) native.blur();   // first press: drop the iPhone keyboard
   else closeKb();                     // second press: close the panel
 });
-$("openSettings").addEventListener("click", () => { closeKb(); closeApps(); settings.classList.add("open"); });
-$("settingsDone").addEventListener("click", () => settings.classList.remove("open"));
+$("openSettings").addEventListener("click", () => { closeKb(); closeApps(); setOpen(settings, true); fitPad(); });
+$("settingsDone").addEventListener("click", () => { setOpen(settings, false); fitPad(); });
 
 // Socket
 let ws = null, ready = false, retry = 0;
@@ -81,15 +104,29 @@ let ws = null, ready = false, retry = 0;
 function connect() {
   try { ws = new WebSocket(`ws://${location.host}/?k=${encodeURIComponent(TOKEN)}`); }
   catch (e) { scheduleReconnect(); return; }
-  ws.onopen = () => { ready = true; retry = 0; dot.classList.add("on"); statusEl.textContent = "connected"; };
-  ws.onclose = () => { ready = false; dot.classList.remove("on"); statusEl.textContent = "reconnecting…"; scheduleReconnect(); };
+  ws.onopen = () => {
+    ready = true; retry = 0;
+    indicator.dataset.state = "live";
+    statusEl.textContent = "Connected";
+  };
+  ws.onclose = () => {
+    ready = false;
+    indicator.dataset.state = "fault";
+    statusEl.textContent = "Reconnecting";
+    scheduleReconnect();
+  };
   ws.onerror = () => { try { ws.close(); } catch (e) {} };
   ws.onmessage = (ev) => {
     let m; try { m = JSON.parse(ev.data); } catch (e) { return; }
     if (m.t === "apps") { renderApps(m.apps); return; }
     if ((m.t === "hello" || m.t === "ax")) {
-      if (m.ax === false) statusEl.textContent = "⚠️ grant Accessibility on Mac";
-      else if (ready) statusEl.textContent = "connected";
+      if (m.ax === false) {
+      indicator.dataset.state = "fault";
+      statusEl.textContent = "Grant Accessibility";
+    } else if (ready) {
+      indicator.dataset.state = "live";
+      statusEl.textContent = "Connected";
+    }
     }
   };
 }
@@ -143,9 +180,9 @@ function runAction(name) {
 let flashTimer = null;
 function showFlash(text) {
   flash.textContent = text;
-  flash.classList.add("show");
+  flash.dataset.show = "yes";
   clearTimeout(flashTimer);
-  flashTimer = setTimeout(() => flash.classList.remove("show"), 650);
+  flashTimer = setTimeout(() => { flash.dataset.show = "no"; }, 650);
 }
 
 // Touch handling
@@ -189,7 +226,7 @@ pad.addEventListener("touchstart", (e) => {
   reconcile(e);
   // Settings closes on touch; the keyboard doesn't, so you can click into a
   // field and keep typing.
-  if (settings.classList.contains("open")) settings.classList.remove("open");
+  if (isOpen(settings)) setOpen(settings, false);
 
   if (active.size === 0) {
     startTime = performance.now();
@@ -206,7 +243,7 @@ pad.addEventListener("touchstart", (e) => {
         if (dragPending && active.size === 1) {
           dragging = true;
           send({ t: "d", b: 0 });
-          pad.classList.add("dragging");
+          pad.dataset.engaged = "drag";
         }
         dragPending = false;
       }, DRAG_ARM_MS);
@@ -231,7 +268,7 @@ pad.addEventListener("touchstart", (e) => {
   } else if (active.size === 2) {
     scrollAnchor = centroid();
   }
-  pad.classList.add("touching");
+  pad.dataset.touching = "yes";
 }, { passive: false });
 
 pad.addEventListener("touchmove", (e) => {
@@ -319,13 +356,13 @@ function endTouches(e) {
   if (active.size === 2) { scrollAnchor = centroid(); return; }
   if (active.size === 1) { scrollAnchor = null; gestureAnchor = null; return; }
 
-  pad.classList.remove("touching");
+  pad.dataset.touching = "no";
   flushQueue();
   cancelPendingDrag();
 
   if (dragging) {
     dragging = false;
-    pad.classList.remove("dragging");
+    pad.dataset.engaged = "none";
     send({ t: "u", b: 0 });
     lastTapEnd = 0;
     tapChain = 0;
@@ -359,9 +396,9 @@ function endTouches(e) {
       lastTapEnd = performance.now();
     }
     if (cfg.diag && tapFingers) {
-      statusEl.textContent = `tap: ${tapFingers} finger${tapFingers > 1 ? "s" : ""}`;
+      statusEl.textContent = `${tapFingers} finger${tapFingers > 1 ? "s" : ""}`;
       clearTimeout(diagTimer);
-      diagTimer = setTimeout(() => { if (ready) statusEl.textContent = "connected"; }, 1400);
+      diagTimer = setTimeout(() => { if (ready) statusEl.textContent = "Connected"; }, 1400);
     }
   }
   peakFingers = 0;
@@ -375,18 +412,26 @@ let diagTimer = null;
 pad.addEventListener("touchend", endTouches, { passive: false });
 pad.addEventListener("touchcancel", endTouches, { passive: false });
 
-// On-screen keyboard
-const LAYERS = {
-  abc: ["qwertyuiop", "asdfghjkl", "zxcvbnm"],
-  num: ["1234567890", "-=[]\;'", "`,./"],
-};
-let layer = "abc";
+// Modifiers latch: tap one and it stays lit until the next key consumes it.
 const mods = { cmd: false, ctrl: false, opt: false, shift: false };
 
 function activeMods() { return Object.keys(mods).filter((m) => mods[m]); }
+
 function clearMods() {
   for (const m of Object.keys(mods)) mods[m] = false;
-  for (const b of document.querySelectorAll("#kb button.mod")) b.classList.remove("on");
+  for (const b of document.querySelectorAll("[data-mod]")) b.setAttribute("aria-pressed", "false");
+}
+
+// A shortcut is pressed the way hardware presses it: modifiers down, key,
+// modifiers up. Any latched modifier joins in, so shift + cmdZ gives redo.
+function pressChord(spec) {
+  const parts = spec.split("+");
+  const key = parts.pop();
+  const held = [...new Set([...parts, ...activeMods()])];
+  for (const m of held) send({ t: "mod", m, down: true });
+  send({ t: "k", key, mod: [] });
+  for (const m of [...held].reverse()) send({ t: "mod", m, down: false });
+  if (activeMods().length) clearMods();
 }
 
 function pressKey(key) {
@@ -395,37 +440,17 @@ function pressKey(key) {
   if (held.length) clearMods();
 }
 
-function renderKeys() {
-  const host = $("keys");
-  host.innerHTML = "";
-  for (const row of LAYERS[layer]) {
-    const div = document.createElement("div");
-    div.className = "krow";
-    for (const ch of row) {
-      const b = document.createElement("button");
-      b.textContent = mods.shift && layer === "abc" ? ch.toUpperCase() : ch;
-      b.dataset.k = ch;
-      div.appendChild(b);
-    }
-    host.appendChild(div);
-  }
-}
-renderKeys();
 
-$("layerBtn").addEventListener("click", () => {
-  layer = layer === "abc" ? "num" : "abc";
-  $("layerBtn").textContent = layer === "abc" ? "123" : "ABC";
-  renderKeys();
-  fitPadToKeyboard();
-});
 
-for (const b of document.querySelectorAll("#kb button.mod")) {
+for (const b of document.querySelectorAll("[data-mod]")) {
   b.addEventListener("click", (e) => {
     e.preventDefault();
     const m = b.dataset.mod;
     mods[m] = !mods[m];
-    b.classList.toggle("on", mods[m]);
-    if (m === "shift") renderKeys();
+    // Every button bound to this modifier lights, wherever it lives.
+    for (const el of document.querySelectorAll(`[data-mod="${m}"]`)) {
+      el.setAttribute("aria-pressed", String(mods[m]));
+    }
   });
 }
 
@@ -439,14 +464,14 @@ let nativeFocused = false;
 native.addEventListener("focus", () => {
   native.value = ""; mirror = "";
   nativeFocused = true;
-  document.body.classList.add("nativekb");
+  document.body.dataset.nativeKeyboard = "yes";
   // Measure after the keyboard animation settles.
   setTimeout(liftAboveNativeKeyboard, 50);
   setTimeout(liftAboveNativeKeyboard, 350);
 });
 native.addEventListener("blur", () => {
   nativeFocused = false;
-  document.body.classList.remove("nativekb");
+  document.body.dataset.nativeKeyboard = "no";
   kb.style.bottom = "";
   setTimeout(fitPadToKeyboard, 50);
 });
@@ -498,24 +523,27 @@ wire("[data-click]", (b) => ({ t: "c", b: parseInt(b.dataset.click, 10), n: 1 })
 wire("[data-sys]", (b) => { runAction(b.dataset.sys); return null; });
 
 // Delegated: key buttons are re-rendered when the layer or shift changes.
-function keyFromEvent(e) {
+function hitFromEvent(e) {
+  const c = e.target.closest("[data-chord]");
+  if (c) return { chord: c.dataset.chord };
   const b = e.target.closest("[data-k]");
-  if (!b) return null;
-  return b.dataset.k;
+  if (b) return { key: b.dataset.k };
+  return null;
 }
+const fire = (hit) => (hit.chord ? pressChord(hit.chord) : pressKey(hit.key));
 let keyHandled = 0;
 document.addEventListener("touchstart", (e) => {
-  const k = keyFromEvent(e);
-  if (!k) return;
+  const hit = hitFromEvent(e);
+  if (!hit) return;
   e.preventDefault(); e.stopPropagation();
   keyHandled = Date.now();
-  pressKey(k);
+  fire(hit);
 }, { passive: false, capture: true });
 document.addEventListener("click", (e) => {
-  const k = keyFromEvent(e);
-  if (!k) return;
+  const hit = hitFromEvent(e);
+  if (!hit) return;
   e.preventDefault();
-  if (Date.now() - keyHandled > 700) pressKey(k);
+  if (Date.now() - keyHandled > 700) fire(hit);
 }, true);
 
 // App switcher
@@ -524,8 +552,10 @@ let switching = false;
 
 function setSwitching(on) {
   switching = on;
-  $("swStart").textContent = on ? "⌘ held" : "Hold ⌘⇥";
-  $("swStart").classList.toggle("mod", on);
+  $("swStart").innerHTML = on
+    ? '<span class="cap">&#8984; held</span>'
+    : '<span class="cap">Hold &#8984;&#8677;</span>';
+  $("swStart").setAttribute("aria-pressed", String(on));
   for (const id of ["swPrev", "swNext", "swPick"]) $(id).disabled = !on;
 }
 
@@ -548,15 +578,17 @@ $("swPrev").addEventListener("click", () => send({ t: "k", key: "tab", mod: ["sh
 $("swPick").addEventListener("click", endSwitch);
 
 function openApps() {
-  closeKb(); settings.classList.remove("open");
-  appsSheet.classList.add("open");
+  closeKb(); setOpen(settings, false);
+  setOpen(appsSheet, true);
+  fitPad();
   send({ t: "apps" });
 }
 function closeApps() {
   endSwitch();                       // never leave ⌘ held behind
-  appsSheet.classList.remove("open");
+  setOpen(appsSheet, false);
+  fitPad();
 }
-$("openApps").addEventListener("click", () => appsSheet.classList.contains("open") ? closeApps() : openApps());
+$("openApps").addEventListener("click", () => isOpen(appsSheet) ? closeApps() : openApps());
 $("appsDone").addEventListener("click", closeApps);
 $("appsRefresh").addEventListener("click", () => send({ t: "apps" }));
 
@@ -566,8 +598,10 @@ function renderApps(list) {
   if (!list || !list.length) { empty.textContent = "no apps found"; empty.style.display = ""; return; }
   empty.style.display = "none";
   for (const a of list) {
-    const el = document.createElement("div");
-    el.className = "app" + (a.front ? " front" : "");
+    const el = document.createElement("button");
+    el.className = "app";
+    el.type = "button";
+    if (a.front) el.setAttribute("aria-current", "true");
     if (a.icon) {
       const img = document.createElement("img");
       img.src = "data:image/png;base64," + a.icon;

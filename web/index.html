@@ -6,136 +6,173 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="MacPad">
-<meta name="theme-color" content="#0b0d10">
-<link rel="manifest" href="/manifest.webmanifest">
-<title>MacPad</title>
+<meta name="theme-color" content="#0B0B0D" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#E7E5E2" media="(prefers-color-scheme: light)">
 <meta name="macpad-token" content="__MACPAD_TOKEN__">
+<link rel="manifest" href="/manifest.webmanifest">
 <link rel="stylesheet" href="styles.css">
+<title>MacPad</title>
 </head>
 <body>
 
-<div id="bar">
-  <div id="dot"></div>
-  <span id="status">connecting…</span>
-  <div class="spacer"></div>
-  <div class="chip" id="openApps">⌘⇥ apps</div>
-  <div class="chip" id="openKb">⌨</div>
-  <div class="chip" id="openSettings">⚙</div>
+<!-- One stroke weight, one grid, no filled shapes. -->
+<svg hidden aria-hidden="true">
+  <symbol id="ic-back" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 6 4 12l7 6V6Z"/><path d="M20 6l-7 6 7 6V6Z"/></g></symbol>
+  <symbol id="ic-fwd" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13 6l7 6-7 6V6Z"/><path d="M4 6l7 6-7 6V6Z"/></g></symbol>
+  <symbol id="ic-play" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5v14"/><path d="M10 5v14"/><path d="M15 6l6 6-6 6V6Z"/></g></symbol>
+  <symbol id="ic-prev" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 6l-9 6 9 6V6Z"/><path d="M5 5v14"/></g></symbol>
+  <symbol id="ic-next" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6l9 6-9 6V6Z"/><path d="M19 5v14"/></g></symbol>
+  <symbol id="ic-vol-down" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h3.5L12 19V5L7.5 9H4Z"/><path d="M16 10.5a2.5 2.5 0 0 1 0 3"/></g></symbol>
+  <symbol id="ic-vol-up" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h3.5L12 19V5L7.5 9H4Z"/><path d="M16 10.5a2.5 2.5 0 0 1 0 3"/><path d="M18.5 8a6 6 0 0 1 0 8"/></g></symbol>
+  <symbol id="ic-mute" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h3.5L12 19V5L7.5 9H4Z"/><path d="m16 10 4 4"/><path d="m20 10-4 4"/></g></symbol>
+  <symbol id="ic-full" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5h4"/><path d="M20 9V5h-4"/><path d="M4 15v4h4"/><path d="M20 15v4h-4"/></g></symbol>
+  <symbol id="ic-esc" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></g></symbol>
+  <symbol id="ic-mission" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="8" height="6" rx="1"/><rect x="13" y="4" width="8" height="6" rx="1"/><rect x="3" y="14" width="8" height="6" rx="1"/><rect x="13" y="14" width="8" height="6" rx="1"/></g></symbol>
+  <symbol id="ic-desktop" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="11" rx="1.5"/><path d="M9 20h6"/><path d="M12 16v4"/></g></symbol>
+  <symbol id="ic-apps" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M17 14v6"/><path d="M14 17h6"/></g></symbol>
+  <symbol id="ic-keyboard" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="1.5"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/></g></symbol>
+  <symbol id="ic-settings" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10"/><path d="M18 7h2"/><path d="M4 17h5"/><path d="M13 17h7"/><circle cx="16" cy="7" r="2"/><circle cx="11" cy="17" r="2"/></g></symbol>
+  <symbol id="ic-refresh" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-.6 4"/><path d="M20 5v6h-6"/></g></symbol>
+  <symbol id="ic-delete" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 6H9l-5 6 5 6h12a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1Z"/><path d="m13 10 4 4"/><path d="m17 10-4 4"/></g></symbol>
+  <symbol id="ic-return" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6v6H6"/><path d="m10 8-4 4 4 4"/></g></symbol>
+  <symbol id="ic-arr-l" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m14 6-6 6 6 6"/></g></symbol>
+  <symbol id="ic-arr-r" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m10 6 6 6-6 6"/></g></symbol>
+  <symbol id="ic-arr-u" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m6 14 6-6 6 6"/></g></symbol>
+  <symbol id="ic-arr-d" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m6 10 6 6 6-6"/></g></symbol>
+</svg>
+
+<div class="indicator" id="indicator" data-state="down">
+  <span class="lamp"></span>
+  <span class="state" id="status">Connecting</span>
+  <span class="host" id="host"></span>
 </div>
 
-<div id="pad">
-  <div id="hint">
-    <b>1 finger</b> move · <b>tap</b> click · <b>tap+hold</b> drag<br>
-    <b>2 fingers</b> scroll · <b>2-tap</b> right-click<br>
-    <b>3 up</b> Mission Control · <b>3 ←→</b> spaces<br>
-    <b>3 down</b> app windows · <b>3-tap</b> middle-click<br>
-    <b>4 up/down</b> show desktop
-  </div>
-  <div id="flash"></div>
+<div class="pad" id="pad" data-engaged="none" data-touching="no">
+  <dl class="legend">
+    <dt>One finger</dt><dd>move, tap to click</dd>
+    <dt>Two fingers</dt><dd>scroll, tap to right-click</dd>
+    <dt>Tap then hold</dt><dd>drag</dd>
+    <dt>Three up</dt><dd>Mission Control</dd>
+    <dt>Three across</dt><dd>switch Spaces</dd>
+  </dl>
+  <div class="flash" id="flash" data-show="no" aria-live="polite"></div>
 </div>
 
-<div id="controls">
-  <div class="row">
-    <button data-med="prev">⏮</button>
-    <button data-med="play">⏯</button>
-    <button data-med="next">⏭</button>
-    <button data-med="voldown">🔉</button>
-    <button data-med="volup">🔊</button>
-    <button data-med="mute">🔇</button>
+<div class="banks">
+  <div class="bank" data-cols="4">
+    <button class="key" data-mod="cmd"   aria-pressed="false"><span class="glyph">&#8984;</span><span class="cap">cmd</span></button>
+    <button class="key" data-mod="ctrl"  aria-pressed="false"><span class="glyph">&#8963;</span><span class="cap">ctrl</span></button>
+    <button class="key" data-mod="opt"   aria-pressed="false"><span class="glyph">&#8997;</span><span class="cap">opt</span></button>
+    <button class="key" data-mod="shift" aria-pressed="false"><span class="glyph">&#8679;</span><span class="cap">shift</span></button>
   </div>
-  <div class="row">
-    <button class="lbl" data-k="left">◀<span class="sub">back</span></button>
-    <button class="lbl" data-k="space">⏯<span class="sub">space</span></button>
-    <button class="lbl" data-k="right">▶<span class="sub">fwd</span></button>
-    <button class="lbl" data-k="f">⛶<span class="sub">full</span></button>
-    <button class="lbl" data-k="esc">esc<span class="sub">exit</span></button>
+
+  <div class="bank" data-cols="2">
+    <button class="key" data-wide data-click="0">Click</button>
+    <button class="key" data-click="1">Right click</button>
   </div>
-  <div class="row">
-    <button class="wide" data-click="0">Left click</button>
-    <button data-click="1">Right click</button>
+
+  <div class="bank" data-cols="5">
+    <button class="key" data-k="left"  aria-label="Back ten seconds"><svg><use href="#ic-back"/></svg></button>
+    <button class="key" data-k="space" aria-label="Play or pause"><svg><use href="#ic-play"/></svg></button>
+    <button class="key" data-k="right" aria-label="Forward ten seconds"><svg><use href="#ic-fwd"/></svg></button>
+    <button class="key" data-k="f"     aria-label="Full screen"><svg><use href="#ic-full"/></svg></button>
+    <button class="key" data-k="esc"   aria-label="Escape"><svg><use href="#ic-esc"/></svg></button>
+  </div>
+
+  <div class="bank" data-cols="5">
+    <button class="key" data-med="voldown" aria-label="Volume down"><svg><use href="#ic-vol-down"/></svg></button>
+    <button class="key" data-med="volup"   aria-label="Volume up"><svg><use href="#ic-vol-up"/></svg></button>
+    <button class="key" data-med="mute"    aria-label="Mute"><svg><use href="#ic-mute"/></svg></button>
+    <button class="key" data-med="prev"    aria-label="Previous track"><svg><use href="#ic-prev"/></svg></button>
+    <button class="key" data-med="next"    aria-label="Next track"><svg><use href="#ic-next"/></svg></button>
+  </div>
+
+  <!-- Held apart deliberately: these rearrange the Mac, not the media. -->
+  <div class="bank" data-cols="2" data-isolated>
+    <button class="key" data-isolated data-sys="mission"><svg><use href="#ic-mission"/></svg><span class="cap">Mission Control</span></button>
+    <button class="key" data-isolated data-sys="showdesktop"><svg><use href="#ic-desktop"/></svg><span class="cap">Show Desktop</span></button>
+  </div>
+
+  <!-- Panels live at the bottom: the top corners are the hardest reach. -->
+  <div class="bank" data-cols="3">
+    <button class="key" data-isolated id="openApps"><svg><use href="#ic-apps"/></svg><span class="cap">Apps</span></button>
+    <button class="key" data-isolated id="openKb"><svg><use href="#ic-keyboard"/></svg><span class="cap">Keyboard</span></button>
+    <button class="key" data-isolated id="openSettings"><svg><use href="#ic-settings"/></svg><span class="cap">Settings</span></button>
   </div>
 </div>
 
-<!-- ---------------- keyboard sheet ---------------- -->
-<div class="sheet" id="kb">
-  <div class="toprow">
-    <input id="native" type="text" placeholder="tap to use the iPhone keyboard"
+<!-- Keyboard: the iPhone's own, ringed by what it cannot send. -->
+<section class="sheet" id="kb" data-open="no" aria-label="Keyboard">
+  <div class="compose">
+    <input id="native" type="text" placeholder="Type here"
            autocapitalize="sentences" autocorrect="on" spellcheck="true" enterkeyhint="send">
-    <button id="kbDone">Done</button>
+    <button class="ghost" id="kbDone">Done</button>
   </div>
-  <div class="krow sys">
-    <button data-sys="mission">Mission<br>Control</button>
-    <button data-sys="appexpose">App<br>windows</button>
-    <button data-sys="showdesktop">Show<br>desktop</button>
-    <button data-sys="spotlight">Spot&shy;light</button>
-    <button data-sys="switchapp">⌘⇥</button>
+  <div class="krow" data-cols="6">
+    <button class="key" data-mod="cmd"   aria-pressed="false"><span class="glyph">&#8984;</span></button>
+    <button class="key" data-mod="ctrl"  aria-pressed="false"><span class="glyph">&#8963;</span></button>
+    <button class="key" data-mod="opt"   aria-pressed="false"><span class="glyph">&#8997;</span></button>
+    <button class="key" data-mod="shift" aria-pressed="false"><span class="glyph">&#8679;</span></button>
+    <button class="key" data-k="esc"><span class="cap">esc</span></button>
+    <button class="key" data-k="tab"><span class="cap">tab</span></button>
   </div>
-  <div class="krow">
-    <button class="mod" data-mod="cmd">⌘</button>
-    <button class="mod" data-mod="ctrl">⌃</button>
-    <button class="mod" data-mod="opt">⌥</button>
-    <button class="mod" data-mod="shift">⇧</button>
-    <button class="util" data-k="esc">esc</button>
-    <button class="util" data-k="tab">⇥</button>
+  <div class="krow" data-cols="6">
+    <button class="key" data-chord="cmd+c"><span class="glyph">&#8984;C</span></button>
+    <button class="key" data-chord="cmd+v"><span class="glyph">&#8984;V</span></button>
+    <button class="key" data-chord="cmd+x"><span class="glyph">&#8984;X</span></button>
+    <button class="key" data-chord="cmd+z"><span class="glyph">&#8984;Z</span></button>
+    <button class="key" data-chord="cmd+a"><span class="glyph">&#8984;A</span></button>
+    <button class="key" data-chord="cmd+f"><span class="glyph">&#8984;F</span></button>
   </div>
-  <div id="keys"></div>
-  <div class="krow utilrow">
-    <button class="util" id="layerBtn">123</button>
-    <button class="space" data-k="space">space</button>
-    <button class="util" data-k="delete">⌫</button>
-    <button class="util" data-k="return">return</button>
+  <div class="krow" data-cols="6">
+    <button class="key" data-k="left"   aria-label="Left"><svg><use href="#ic-arr-l"/></svg></button>
+    <button class="key" data-k="up"     aria-label="Up"><svg><use href="#ic-arr-u"/></svg></button>
+    <button class="key" data-k="down"   aria-label="Down"><svg><use href="#ic-arr-d"/></svg></button>
+    <button class="key" data-k="right"  aria-label="Right"><svg><use href="#ic-arr-r"/></svg></button>
+    <button class="key" data-k="delete" aria-label="Delete"><svg><use href="#ic-delete"/></svg></button>
+    <button class="key" data-k="return" aria-label="Return"><svg><use href="#ic-return"/></svg></button>
   </div>
-  <div class="krow">
-    <button data-k="left">←</button>
-    <button data-k="up">↑</button>
-    <button data-k="down">↓</button>
-    <button data-k="right">→</button>
-  </div>
-</div>
+</section>
 
-<!-- ---------------- app switcher sheet ---------------- -->
-<div class="sheet" id="apps">
-  <div class="head">
-    <b>SWITCH APP</b>
-    <button id="appsRefresh">↻</button>
-    <button id="appsDone">Done</button>
+<!-- App switcher -->
+<section class="sheet" id="apps" data-open="no" aria-label="Switch app">
+  <div class="sheet-head">
+    <h2>Switch app</h2>
+    <button class="ghost" id="appsRefresh" aria-label="Refresh"><svg><use href="#ic-refresh"/></svg></button>
+    <button class="ghost" id="appsDone">Done</button>
   </div>
-  <div class="krow">
-    <button id="swStart">Hold ⌘⇥</button>
-    <button id="swPrev" disabled>◀</button>
-    <button id="swNext" disabled>▶</button>
-    <button id="swPick" disabled>✓ pick</button>
+  <div class="krow" data-cols="4">
+    <button class="key" id="swStart" aria-pressed="false"><span class="cap">Hold &#8984;&#8677;</span></button>
+    <button class="key" id="swPrev" disabled aria-label="Previous app"><svg><use href="#ic-arr-l"/></svg></button>
+    <button class="key" id="swNext" disabled aria-label="Next app"><svg><use href="#ic-arr-r"/></svg></button>
+    <button class="key" id="swPick" disabled><span class="cap">Pick</span></button>
   </div>
-  <div id="appGrid"></div>
-  <div id="appEmpty">loading apps…</div>
-</div>
+  <div class="appgrid" id="appGrid"></div>
+  <p class="appempty" id="appEmpty">Loading apps</p>
+</section>
 
-<!-- ---------------- settings sheet ---------------- -->
-<div class="sheet" id="settings">
-  <h3>SETTINGS</h3>
+<!-- Settings -->
+<section class="sheet" id="settings" data-open="no" aria-label="Settings">
+  <div class="sheet-head"><h2>Settings</h2><button class="ghost" id="settingsDone">Done</button></div>
   <div class="field">
-    <label>Pointer speed <span id="sensVal">1.8×</span></label>
+    <label for="sens">Pointer speed <span class="value" id="sensVal">1.8&times;</span></label>
     <input type="range" id="sens" min="0.4" max="5" step="0.1" value="1.8">
   </div>
   <div class="field">
-    <label>Scroll speed <span id="scrollVal">1.0×</span></label>
+    <label for="scrollSpeed">Scroll speed <span class="value" id="scrollVal">1.0&times;</span></label>
     <input type="range" id="scrollSpeed" min="0.2" max="4" step="0.1" value="1">
   </div>
   <div class="field">
-    <label>Gesture sensitivity <span id="gestVal">55px</span></label>
+    <label for="gestThresh">Gesture sensitivity <span class="value" id="gestVal">55px</span></label>
     <input type="range" id="gestThresh" min="25" max="120" step="5" value="55">
   </div>
-  <div class="toggle"><span>Natural scrolling</span><input type="checkbox" id="natural" checked></div>
-  <div class="toggle"><span>Pointer acceleration</span><input type="checkbox" id="accel" checked></div>
-  <div class="toggle"><span>Multi-finger gestures</span><input type="checkbox" id="gestures" checked></div>
-  <div class="toggle"><span>2-finger tap = right click</span><input type="checkbox" id="rightTap" checked></div>
-  <div class="toggle"><span>Show tap diagnostics</span><input type="checkbox" id="diag"></div>
-  <p class="note">
-    Gestures fire the matching macOS shortcut (3-finger up runs Mission Control via ⌃↑),
-    so they work exactly as they do on your built-in trackpad.
-  </p>
-  <div class="row"><button id="settingsDone">Done</button></div>
-</div>
+  <div class="toggle"><label for="natural">Natural scrolling</label><input type="checkbox" id="natural" checked></div>
+  <div class="toggle"><label for="accel">Pointer acceleration</label><input type="checkbox" id="accel" checked></div>
+  <div class="toggle"><label for="gestures">Multi-finger gestures</label><input type="checkbox" id="gestures" checked></div>
+  <div class="toggle"><label for="rightTap">Two-finger tap right-clicks</label><input type="checkbox" id="rightTap" checked></div>
+  <div class="toggle"><label for="diag">Show tap diagnostics</label><input type="checkbox" id="diag"></div>
+  <p class="note">Gestures send the matching macOS shortcut, so they follow any remapping you have made in System Settings.</p>
+</section>
 
 <script src="app.js" defer></script>
 </body>
