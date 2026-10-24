@@ -75,10 +75,20 @@ list with icons as base64 PNG.
 
 ## Design notes
 
-**Gestures fire shortcuts, not synthetic gestures.** macOS exposes no API for
-injecting a real trackpad gesture. Each gesture sends the shortcut that gesture
-triggers, so a three-finger swipe up sends Control-Up. The visible result is
-identical and it honours any remapping in System Settings.
+**Synthesised presses of system hotkeys do nothing, so gestures route around
+them.** macOS exposes no API for injecting a real trackpad gesture, so the
+obvious approach is to send the shortcut each gesture triggers. That turns out
+not to work: Ctrl+Up, Ctrl+Down, Ctrl+Left/Right and F11 were each measured
+firing nothing, while Cmd+Tab and Cmd+` fire every time. The difference is that
+the first group are system hotkeys and the second are ordinary app shortcuts.
+
+Each gesture therefore uses whatever mechanism actually works. Three fingers up
+launches Mission Control directly. Three fingers sideways activates the adjacent
+app, which moves between windows and, because a full-screen app owns its own
+Space, between Spaces too. Three fingers down sends Cmd+`, cycling the current
+app's windows. Each was verified against a signal specific to its effect: a Dock
+full-screen window for Mission Control, the frontmost app for cycling apps, and
+CGWindowList front-to-back order for cycling windows.
 
 **Modifiers are posted as `flagsChanged`, not as flags on the key event.**
 Setting `maskControl` on a key event is enough for most applications but not
@@ -161,13 +171,13 @@ jump, and the phantom-finger bug suppressed the click entirely.
 
 ## Known issues
 
-- Pointer movement can feel slightly uneven at high speed. The acceleration
-  curve is applied per event rather than per unit time, so it varies with touch
-  sampling rate.
-- Three- and four-finger gestures are implemented but not verified against a
-  physical device.
 - The LAN address changes when the router reassigns a lease. The QR code is
   always current; a bookmarked URL may not be. Bonjour would fix this.
+- Gesture routing was worked out against one Mac. On a machine where the system
+  hotkeys do respond to a synthetic press, sending them would be the tidier
+  path; the shortcut remains as a fallback for Mission Control only.
+- The running-app list is about 230 KB because it carries icons as base64 PNG.
+  That is 40 ms on a LAN and has not been worth optimising.
 
 ## Security
 
